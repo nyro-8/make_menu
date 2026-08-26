@@ -129,6 +129,24 @@ function strokeArc(rgba, w, cx, cy, radius, thickness, startDeg, endDeg, r, g, b
   }
 }
 
+function strokeLine(rgba, w, x1, y1, x2, y2, thickness, r, g, b, a) {
+  const steps = 60;
+  for (let i = 0; i <= steps; i++) {
+    const t = i / steps;
+    const px = x1 + (x2 - x1) * t;
+    const py = y1 + (y2 - y1) * t;
+    fillCircle(rgba, w, px, py, thickness / 2, r, g, b, a, false);
+  }
+}
+
+function fillRect(rgba, w, x, y, rw, rh, r, g, b, a) {
+  for (let yy = Math.round(y); yy < Math.round(y + rh); yy++) {
+    for (let xx = Math.round(x); xx < Math.round(x + rw); xx++) {
+      setPx(rgba, w, xx, yy, r, g, b, a);
+    }
+  }
+}
+
 function makeIcon(size, { padded = false } = {}) {
   const rgba = Buffer.alloc(size * size * 4);
   // transparent base
@@ -138,41 +156,66 @@ function makeIcon(size, { padded = false } = {}) {
     rgba[i + 2] = 0;
     rgba[i + 3] = 0;
   }
-  const bg = { r: 0xec, g: 0x5f, b: 0x88 }; // うさぎモチーフ用のローズピンク
+  const bg = { r: 0xc1, g: 0x63, b: 0x3b }; // ビーバーモチーフ用のテラコッタ
   const radius = padded ? size * 0.5 : size * 0.24;
   fillRoundedRect(rgba, size, size, radius, bg.r, bg.g, bg.b, 255);
 
   const cx = size / 2;
-  const cy = size * 0.58;
-  const faceR = size * 0.27;
-  const white = { r: 255, g: 255, b: 255 };
-  const plum = { r: 0x5b, g: 0x46, b: 0x50 };
-  const pink = { r: 0xff, g: 0xd3, b: 0xe0 };
-  const cheek = { r: 0xff, g: 0xb8, b: 0xcc };
-  const nose = { r: 0xec, g: 0x5f, b: 0x88 };
+  const cy = size * 0.56;
+  const faceR = size * 0.28;
+  const earOuter = { r: 0x8a, g: 0x5a, b: 0x30 };
+  const earInner = { r: 0xc9, g: 0x8f, b: 0x57 };
+  const head = { r: 0xa9, g: 0x71, b: 0x3f };
+  const muzzle = { r: 0xe8, g: 0xcf, b: 0xa0 };
+  const cheek = { r: 0xe8, g: 0xa0, b: 0x6a };
+  const dark = { r: 0x4a, g: 0x36, b: 0x26 };
+  const tooth = { r: 0xff, g: 0xf8, b: 0xec };
 
-  // 垂れ耳(白)+内耳(ピンク)
-  const earCx = size * 0.27;
-  const earCy = size * 0.32;
-  fillEllipse(rgba, size, earCx, earCy, faceR * 0.38, faceR * 0.88, -18, white.r, white.g, white.b, 255);
-  fillEllipse(rgba, size, earCx, earCy, faceR * 0.19, faceR * 0.62, -18, pink.r, pink.g, pink.b, 255);
-  fillEllipse(rgba, size, size - earCx, earCy, faceR * 0.38, faceR * 0.88, 18, white.r, white.g, white.b, 255);
-  fillEllipse(rgba, size, size - earCx, earCy, faceR * 0.19, faceR * 0.62, 18, pink.r, pink.g, pink.b, 255);
+  // 耳
+  const earCx = size * 0.24;
+  const earCy = cy - faceR * 0.82;
+  fillCircle(rgba, size, earCx, earCy, faceR * 0.42, earOuter.r, earOuter.g, earOuter.b, 255);
+  fillCircle(rgba, size, size - earCx, earCy, faceR * 0.42, earOuter.r, earOuter.g, earOuter.b, 255);
+  fillCircle(rgba, size, earCx, earCy, faceR * 0.2, earInner.r, earInner.g, earInner.b, 255);
+  fillCircle(rgba, size, size - earCx, earCy, faceR * 0.2, earInner.r, earInner.g, earInner.b, 255);
 
-  // 顔(白)
-  fillCircle(rgba, size, cx, cy, faceR, white.r, white.g, white.b, 255);
+  // 頭
+  fillCircle(rgba, size, cx, cy, faceR, head.r, head.g, head.b, 255);
+
+  // マズル
+  fillEllipse(rgba, size, cx, cy + faceR * 0.28, faceR * 0.62, faceR * 0.52, 0, muzzle.r, muzzle.g, muzzle.b, 255);
 
   // ほっぺ
-  fillCircle(rgba, size, cx - faceR * 0.62, cy + faceR * 0.22, faceR * 0.22, cheek.r, cheek.g, cheek.b, 180);
-  fillCircle(rgba, size, cx + faceR * 0.62, cy + faceR * 0.22, faceR * 0.22, cheek.r, cheek.g, cheek.b, 180);
+  fillCircle(rgba, size, cx - faceR * 0.68, cy + faceR * 0.14, faceR * 0.2, cheek.r, cheek.g, cheek.b, 150);
+  fillCircle(rgba, size, cx + faceR * 0.68, cy + faceR * 0.14, faceR * 0.2, cheek.r, cheek.g, cheek.b, 150);
 
-  // 目(にっこりアーチ)
-  const eyeR = faceR * 0.34;
-  strokeArc(rgba, size, cx - faceR * 0.36, cy - faceR * 0.08, eyeR, size * 0.018, 25, 155, plum.r, plum.g, plum.b, 255);
-  strokeArc(rgba, size, cx + faceR * 0.36, cy - faceR * 0.08, eyeR, size * 0.018, 25, 155, plum.r, plum.g, plum.b, 255);
+  // 八の字眉
+  const browT = Math.max(1.5, size * 0.02);
+  strokeLine(
+    rgba, size,
+    cx - faceR * 0.26, cy - faceR * 0.58,
+    cx - faceR * 0.74, cy - faceR * 0.34,
+    browT, dark.r, dark.g, dark.b, 255
+  );
+  strokeLine(
+    rgba, size,
+    cx + faceR * 0.26, cy - faceR * 0.58,
+    cx + faceR * 0.74, cy - faceR * 0.34,
+    browT, dark.r, dark.g, dark.b, 255
+  );
+
+  // 目
+  fillCircle(rgba, size, cx - faceR * 0.37, cy - faceR * 0.08, faceR * 0.14, dark.r, dark.g, dark.b, 255);
+  fillCircle(rgba, size, cx + faceR * 0.37, cy - faceR * 0.08, faceR * 0.14, dark.r, dark.g, dark.b, 255);
 
   // 鼻
-  fillCircle(rgba, size, cx, cy + faceR * 0.22, faceR * 0.09, nose.r, nose.g, nose.b, 255);
+  fillEllipse(rgba, size, cx, cy + faceR * 0.14, faceR * 0.14, faceR * 0.11, 0, dark.r, dark.g, dark.b, 255);
+
+  // 前歯
+  const toothW = faceR * 0.14;
+  const toothH = faceR * 0.22;
+  fillRect(rgba, size, cx - toothW - 1, cy + faceR * 0.34, toothW, toothH, tooth.r, tooth.g, tooth.b, 255);
+  fillRect(rgba, size, cx + 1, cy + faceR * 0.34, toothW, toothH, tooth.r, tooth.g, tooth.b, 255);
 
   return rgba;
 }

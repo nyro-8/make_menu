@@ -12,23 +12,26 @@
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: max(14px, env(safe-area-inset-top)) 16px 10px;
-  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
-  color: #fff;
+  gap: 10px;
+  padding: max(16px, env(safe-area-inset-top)) 16px 12px;
+  background: var(--color-card);
+  color: var(--color-text);
   z-index: 5;
-  box-shadow: 0 2px 10px rgba(236, 95, 136, 0.28);
+  border-bottom: 1px solid var(--color-border);
+  box-shadow: 0 2px 8px rgba(74, 54, 38, 0.06);
 }
 
 .app-header h1 {
   margin: 0;
-  font-size: 1.15rem;
+  font-family: 'Caveat', cursive;
+  font-size: 1.7rem;
   font-weight: 700;
+  color: var(--color-primary);
 }
 
 .header-mascot {
-  width: 34px;
-  height: 34px;
+  width: 40px;
+  height: 40px;
   flex-shrink: 0;
 }
 
@@ -111,7 +114,7 @@
   border-color: var(--color-primary);
   color: #fff;
   font-weight: 600;
-  box-shadow: 0 3px 10px rgba(236, 95, 136, 0.32);
+  box-shadow: 0 3px 10px rgba(193, 99, 59, 0.32);
 }
 
 .btn-small {
@@ -210,7 +213,7 @@
 .view-toggle button.active {
   background: var(--color-card);
   color: var(--color-primary);
-  box-shadow: 0 1px 4px rgba(200, 110, 140, 0.16);
+  box-shadow: 0 1px 4px rgba(205, 140, 105, 0.18);
 }
 
 .calendar-toolbar {
@@ -270,11 +273,11 @@
 }
 
 .weekday-label.sat {
-  color: #5aa9dd;
+  color: #4f7f96;
 }
 
 .weekday-label.sun {
-  color: #ef6a86;
+  color: #b23a3a;
 }
 
 .calendar-grid {
@@ -322,9 +325,9 @@
 }
 
 .calendar-cell.selected {
-  background: #ffe3ec;
+  background: #f6ddc7;
   border-color: var(--color-primary);
-  box-shadow: 0 2px 8px rgba(236, 95, 136, 0.22);
+  box-shadow: 0 2px 8px rgba(193, 99, 59, 0.22);
 }
 
 .cell-date {
@@ -376,7 +379,7 @@
   cursor: pointer;
   text-align: left;
   width: 100%;
-  box-shadow: 0 1px 4px rgba(200, 110, 140, 0.10);
+  box-shadow: 0 1px 4px rgba(205, 140, 105, 0.14);
   transition: transform 0.1s, box-shadow 0.15s;
 }
 
@@ -389,9 +392,9 @@
 }
 
 .calendar-row.selected {
-  background: #ffe3ec;
+  background: #f6ddc7;
   border-color: var(--color-primary);
-  box-shadow: 0 2px 8px rgba(236, 95, 136, 0.22);
+  box-shadow: 0 2px 8px rgba(193, 99, 59, 0.22);
 }
 
 .row-date {
@@ -410,11 +413,11 @@
 }
 
 .row-weekday.sat {
-  color: #5aa9dd;
+  color: #4f7f96;
 }
 
 .row-weekday.sun {
-  color: #ef6a86;
+  color: #b23a3a;
 }
 
 .row-daynum {
@@ -562,7 +565,7 @@
 
 .recipe-picker-item.active {
   border-color: var(--color-primary);
-  background: #ffe3ec;
+  background: #f6ddc7;
 }
 
 .badge {
@@ -716,7 +719,7 @@
   border-radius: 16px;
   padding: 10px 12px;
   font-size: 0.9rem;
-  box-shadow: 0 1px 4px rgba(200, 110, 140, 0.10);
+  box-shadow: 0 1px 4px rgba(205, 140, 105, 0.14);
 }
 
 .builtin-checkbox-label {
@@ -739,7 +742,7 @@
   background: var(--color-card);
   border-radius: 16px;
   padding: 10px 12px;
-  box-shadow: 0 1px 4px rgba(200, 110, 140, 0.10);
+  box-shadow: 0 1px 4px rgba(205, 140, 105, 0.14);
 }
 
 .pantry-item.out {
@@ -771,7 +774,7 @@
   border-radius: 16px;
   padding: 10px 12px;
   font-size: 0.92rem;
-  box-shadow: 0 1px 4px rgba(200, 110, 140, 0.10);
+  box-shadow: 0 1px 4px rgba(205, 140, 105, 0.14);
 }
 
 .shopping-item:has(.ingredient-servings) {

@@ -5,7 +5,7 @@ import { CalendarView } from './components/CalendarView';
 import { MenuManager } from './components/MenuManager';
 import { PantryManager } from './components/PantryManager';
 import { ShoppingList } from './components/ShoppingList';
-import { CalendarIcon, BookIcon, JarIcon, CartIcon, BunnyMascot } from './components/icons';
+import { CalendarIcon, BookIcon, JarIcon, CartIcon, BeaverMascot } from './components/icons';
 
 type Tab = 'calendar' | 'menus' | 'pantry' | 'shopping';
 
@@ -23,7 +23,7 @@ function AppShell() {
   return (
     <div className="app-shell">
       <header className="app-header">
-        <BunnyMascot className="header-mascot" />
+        <BeaverMascot className="header-mascot" />
         <h1>献立プランナー</h1>
       </header>
 

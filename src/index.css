@@ -1,16 +1,16 @@
 :root {
-  --color-primary: #ec5f88;
-  --color-primary-dark: #d43f6b;
-  --color-bg: #fff5f8;
-  --color-card: #ffffff;
-  --color-text: #5b4650;
-  --color-muted: #ab8f9a;
-  --color-border: #ffdfe9;
-  --color-danger: #e2574f;
-  --color-warn-bg: #fff3d6;
-  --color-warn-text: #b8862e;
-  --radius: 20px;
-  --shadow: 0 3px 12px rgba(236, 95, 136, 0.16);
+  --color-primary: #c1633b;
+  --color-primary-dark: #9c4d2c;
+  --color-bg: #f7f0e3;
+  --color-card: #fffaf1;
+  --color-text: #4a3626;
+  --color-muted: #a08a6e;
+  --color-border: #ecdfc4;
+  --color-danger: #b23a3a;
+  --color-warn-bg: #f3e3c4;
+  --color-warn-text: #8a6a2e;
+  --radius: 18px;
+  --shadow: 0 3px 10px rgba(74, 54, 38, 0.12);
   color-scheme: light;
 }
 
@@ -24,8 +24,8 @@ body {
   padding: 0;
   background: var(--color-bg);
   color: var(--color-text);
-  font-family: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', -apple-system, BlinkMacSystemFont,
-    'Segoe UI', sans-serif;
+  font-family: 'Zilla Slab', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', -apple-system,
+    BlinkMacSystemFont, 'Segoe UI', sans-serif;
   -webkit-tap-highlight-color: transparent;
   overscroll-behavior-y: contain;
 }
