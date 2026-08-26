@@ -111,8 +111,8 @@ export function ShoppingList({ selectedDates, onGoToCalendar, onAllChecked }: Pr
 
       {outPantryItems.length > 0 && (
         <>
-          <h3 className="list-title">切れている調味料・常備品</h3>
-          <p className="muted small">チェックすると「買った」として調味料の在庫切れ状態が解除されます。</p>
+          <h3 className="list-title">ヤマな調味料・常備品</h3>
+          <p className="muted small">チェックすると「買った」として調味料のヤマ状態が解除されます。</p>
           <div className="shopping-list">
             {outPantryItems.map((p) => (
               <label key={p.id} className="shopping-item">

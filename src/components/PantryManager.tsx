@@ -25,7 +25,7 @@ export function PantryManager() {
         <h2>調味料・常備品</h2>
       </div>
       <p className="muted small">
-        「切れた」にチェックすると、買い物リストに自動で追加されます。{outCount > 0 && ` (現在 ${outCount}件 切れています)`}
+        「ヤマ」にチェックすると、買い物リストに自動で追加されます。{outCount > 0 && ` (現在 ${outCount}件 ヤマです)`}
       </p>
 
       <form className="add-inline-form" onSubmit={handleAdd}>
