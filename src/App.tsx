@@ -37,7 +37,11 @@ function AppShell() {
         {tab === 'menus' && <MenuManager />}
         {tab === 'pantry' && <PantryManager />}
         {tab === 'shopping' && (
-          <ShoppingList selectedDates={selectedDates} onGoToCalendar={() => setTab('calendar')} />
+          <ShoppingList
+            selectedDates={selectedDates}
+            onGoToCalendar={() => setTab('calendar')}
+            onAllChecked={() => setSelectedDates(new Set())}
+          />
         )}
       </main>
 
