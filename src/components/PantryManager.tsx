@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useAppData } from '../store/AppDataContext';
 
 export function PantryManager() {
@@ -6,6 +6,11 @@ export function PantryManager() {
   const [newName, setNewName] = useState('');
 
   const outCount = pantry.filter((p) => p.isOut).length;
+
+  const sortedPantry = useMemo(
+    () => [...pantry].sort((a, b) => Number(b.isOut) - Number(a.isOut)),
+    [pantry],
+  );
 
   function handleAdd(e: React.FormEvent) {
     e.preventDefault();
@@ -33,7 +38,7 @@ export function PantryManager() {
       </form>
 
       <div className="pantry-list">
-        {pantry.map((item) => (
+        {sortedPantry.map((item) => (
           <div key={item.id} className={`pantry-item ${item.isOut ? 'out' : ''}`}>
             <label className="pantry-checkbox">
               <input type="checkbox" checked={item.isOut} onChange={() => togglePantryOut(item.id)} />
