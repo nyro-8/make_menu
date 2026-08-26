@@ -31,6 +31,7 @@ export interface AppData {
   version: number;
   customRecipes: Recipe[];
   excludedBuiltinIds: string[];
+  builtinOverrides: Record<string, { name: string; ingredients: Ingredient[]; cookMinutes?: number }>;
   mealPlan: Record<string, string | null>; // date -> recipeId
   pantry: PantryItem[];
   shoppingChecked: Record<string, boolean>;

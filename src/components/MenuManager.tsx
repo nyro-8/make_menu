@@ -6,6 +6,8 @@ function emptyIngredient(): Ingredient {
   return { name: '', amount: '' };
 }
 
+type EditingTarget = { type: 'custom' | 'builtin'; id: string } | null;
+
 export function MenuManager() {
   const {
     customRecipes,
@@ -15,10 +17,13 @@ export function MenuManager() {
     updateCustomRecipe,
     deleteCustomRecipe,
     toggleExcludeBuiltin,
+    isBuiltinOverridden,
+    updateBuiltinRecipe,
+    resetBuiltinRecipe,
   } = useAppData();
 
   const [formOpen, setFormOpen] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingTarget, setEditingTarget] = useState<EditingTarget>(null);
   const [name, setName] = useState('');
   const [cookMinutes, setCookMinutes] = useState('');
   const [memo, setMemo] = useState('');
@@ -42,7 +47,7 @@ export function MenuManager() {
     setCookMinutes('');
     setMemo('');
     setIngredients([emptyIngredient()]);
-    setEditingId(null);
+    setEditingTarget(null);
   }
 
   function openAddForm() {
@@ -50,8 +55,8 @@ export function MenuManager() {
     setFormOpen(true);
   }
 
-  function openEditForm(recipe: Recipe) {
-    setEditingId(recipe.id);
+  function openEditForm(recipe: Recipe, type: 'custom' | 'builtin') {
+    setEditingTarget({ type, id: recipe.id });
     setName(recipe.name);
     setCookMinutes(recipe.cookMinutes ? String(recipe.cookMinutes) : '');
     setMemo(recipe.memo ?? '');
@@ -84,6 +89,16 @@ export function MenuManager() {
       .map((ing) => ({ name: ing.name.trim(), amount: ing.amount.trim() }))
       .filter((ing) => ing.name.length > 0);
 
+    if (editingTarget?.type === 'builtin') {
+      updateBuiltinRecipe(editingTarget.id, {
+        name: trimmedName,
+        cookMinutes: cookMinutes ? Number(cookMinutes) : undefined,
+        ingredients: cleanIngredients,
+      });
+      closeForm();
+      return;
+    }
+
     const payload = {
       name: trimmedName,
       cookMinutes: cookMinutes ? Number(cookMinutes) : undefined,
@@ -91,8 +106,8 @@ export function MenuManager() {
       ingredients: cleanIngredients,
     };
 
-    if (editingId) {
-      updateCustomRecipe(editingId, payload);
+    if (editingTarget?.type === 'custom') {
+      updateCustomRecipe(editingTarget.id, payload);
     } else {
       addCustomRecipe(payload);
     }
@@ -112,12 +127,15 @@ export function MenuManager() {
 
       {formOpen && (
         <form className="card recipe-form" onSubmit={handleSubmit}>
+          {editingTarget?.type === 'builtin' && (
+            <p className="muted small">レシピ集のメニューを編集しています。「元に戻す」でいつでも元の内容に戻せます。</p>
+          )}
           <label className="field">
             <span>メニュー名</span>
             <input value={name} onChange={(e) => setName(e.target.value)} placeholder="例: 肉じゃが" required />
           </label>
 
-          {nameSuggestions.length > 0 && (
+          {!editingTarget && nameSuggestions.length > 0 && (
             <div className="suggestion-box">
               <p className="muted small">似ているレシピ集の材料を使う:</p>
               <div className="suggestion-chips">
@@ -165,14 +183,16 @@ export function MenuManager() {
             </button>
           </div>
 
-          <label className="field">
-            <span>メモ(任意)</span>
-            <textarea value={memo} onChange={(e) => setMemo(e.target.value)} rows={2} />
-          </label>
+          {editingTarget?.type !== 'builtin' && (
+            <label className="field">
+              <span>メモ(任意)</span>
+              <textarea value={memo} onChange={(e) => setMemo(e.target.value)} rows={2} />
+            </label>
+          )}
 
           <div className="modal-actions">
             <button type="submit" className="btn btn-primary">
-              {editingId ? '更新する' : '登録する'}
+              {editingTarget ? '更新する' : '登録する'}
             </button>
             <button type="button" className="btn" onClick={closeForm}>
               キャンセル
@@ -196,7 +216,7 @@ export function MenuManager() {
               </p>
             </div>
             <div className="recipe-card-actions">
-              <button className="btn btn-small" onClick={() => openEditForm(r)}>編集</button>
+              <button className="btn btn-small" onClick={() => openEditForm(r, 'custom')}>編集</button>
               <button className="btn btn-small btn-danger-outline" onClick={() => deleteCustomRecipe(r.id)}>削除</button>
             </div>
           </div>
@@ -207,17 +227,28 @@ export function MenuManager() {
         <h2>簡単レシピ集(自動作成で使用)</h2>
       </div>
       <p className="muted small">
-        チェックを外すと、そのメニューは献立の自動作成で使われなくなります。
+        チェックを外すと、そのメニューは献立の自動作成で使われなくなります。「編集」で材料を直接書き換えることもできます。
       </p>
       <div className="builtin-list">
         {builtinRecipes.map((r) => {
           const included = !excludedBuiltinIds.includes(r.id);
+          const overridden = isBuiltinOverridden(r.id);
           return (
-            <label key={r.id} className="builtin-item">
-              <input type="checkbox" checked={included} onChange={() => toggleExcludeBuiltin(r.id)} />
-              <span className="builtin-name">{r.name}</span>
+            <div key={r.id} className="builtin-item">
+              <label className="builtin-checkbox-label">
+                <input type="checkbox" checked={included} onChange={() => toggleExcludeBuiltin(r.id)} />
+                <span className="builtin-name">{r.name}</span>
+              </label>
               <span className="muted small">{r.cookMinutes}分</span>
-            </label>
+              <button type="button" className="btn btn-small" onClick={() => openEditForm(r, 'builtin')}>
+                編集
+              </button>
+              {overridden && (
+                <button type="button" className="btn btn-small btn-danger-outline" onClick={() => resetBuiltinRecipe(r.id)}>
+                  元に戻す
+                </button>
+              )}
+            </div>
           );
         })}
       </div>

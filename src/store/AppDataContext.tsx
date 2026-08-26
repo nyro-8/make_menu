@@ -19,6 +19,9 @@ interface AppDataContextValue {
   updateCustomRecipe: (id: string, updates: Partial<Omit<Recipe, 'id' | 'isCustom'>>) => void;
   deleteCustomRecipe: (id: string) => void;
   toggleExcludeBuiltin: (id: string) => void;
+  isBuiltinOverridden: (id: string) => boolean;
+  updateBuiltinRecipe: (id: string, updates: { name: string; ingredients: Ingredient[]; cookMinutes?: number }) => void;
+  resetBuiltinRecipe: (id: string) => void;
 
   setMealPlanDay: (date: string, recipeId: string | null) => void;
   generatePlanForDates: (dates: string[]) => void;
@@ -34,6 +37,14 @@ interface AppDataContextValue {
 
 const AppDataContext = createContext<AppDataContextValue | null>(null);
 
+function applyBuiltinOverrides(overrides: AppData['builtinOverrides']): Recipe[] {
+  return builtinRecipes.map((r) => {
+    const override = overrides[r.id];
+    if (!override) return r;
+    return { ...r, name: override.name, ingredients: override.ingredients, cookMinutes: override.cookMinutes };
+  });
+}
+
 export function AppDataProvider({ children }: { children: ReactNode }) {
   const [data, setData] = useState<AppData>(() => loadAppData());
 
@@ -41,21 +52,26 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     saveAppData(data);
   }, [data]);
 
+  const effectiveBuiltinRecipes = useMemo(
+    () => applyBuiltinOverrides(data.builtinOverrides),
+    [data.builtinOverrides],
+  );
+
   const activeRecipes = useMemo(() => {
     const excluded = new Set(data.excludedBuiltinIds);
-    return [...data.customRecipes, ...builtinRecipes.filter((r) => !excluded.has(r.id))];
-  }, [data.customRecipes, data.excludedBuiltinIds]);
+    return [...data.customRecipes, ...effectiveBuiltinRecipes.filter((r) => !excluded.has(r.id))];
+  }, [data.customRecipes, data.excludedBuiltinIds, effectiveBuiltinRecipes]);
 
   const allRecipesById = useMemo(() => {
     const map = new Map<string, Recipe>();
     for (const r of data.customRecipes) map.set(r.id, r);
-    for (const r of builtinRecipes) map.set(r.id, r);
+    for (const r of effectiveBuiltinRecipes) map.set(r.id, r);
     return map;
-  }, [data.customRecipes]);
+  }, [data.customRecipes, effectiveBuiltinRecipes]);
 
   const value: AppDataContextValue = {
     customRecipes: data.customRecipes,
-    builtinRecipes,
+    builtinRecipes: effectiveBuiltinRecipes,
     excludedBuiltinIds: data.excludedBuiltinIds,
     activeRecipes,
     allRecipesById,
@@ -104,6 +120,23 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
       });
     },
 
+    isBuiltinOverridden: (id) => !!data.builtinOverrides[id],
+
+    updateBuiltinRecipe: (id, updates) => {
+      setData((prev) => ({
+        ...prev,
+        builtinOverrides: { ...prev.builtinOverrides, [id]: updates },
+      }));
+    },
+
+    resetBuiltinRecipe: (id) => {
+      setData((prev) => {
+        const next = { ...prev.builtinOverrides };
+        delete next[id];
+        return { ...prev, builtinOverrides: next };
+      });
+    },
+
     setMealPlanDay: (date, recipeId) => {
       setData((prev) => ({ ...prev, mealPlan: { ...prev.mealPlan, [date]: recipeId } }));
     },
@@ -112,7 +145,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
       setData((prev) => {
         if (dates.length === 0) return prev;
         const excluded = new Set(prev.excludedBuiltinIds);
-        const pool = [...prev.customRecipes, ...builtinRecipes.filter((r) => !excluded.has(r.id))];
+        const pool = [...prev.customRecipes, ...applyBuiltinOverrides(prev.builtinOverrides).filter((r) => !excluded.has(r.id))];
         const sorted = [...dates].sort();
         const dayBefore = addDays(sorted[0], -1);
         const anchor = prev.mealPlan[dayBefore] ?? null;
@@ -124,7 +157,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     regenerateDay: (date) => {
       setData((prev) => {
         const excluded = new Set(prev.excludedBuiltinIds);
-        const pool = [...prev.customRecipes, ...builtinRecipes.filter((r) => !excluded.has(r.id))];
+        const pool = [...prev.customRecipes, ...applyBuiltinOverrides(prev.builtinOverrides).filter((r) => !excluded.has(r.id))];
         const prevId = prev.mealPlan[addDays(date, -1)] ?? null;
         const nextId = prev.mealPlan[addDays(date, 1)] ?? null;
         const currentId = prev.mealPlan[date] ?? null;
