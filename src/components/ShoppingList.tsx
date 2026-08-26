@@ -1,10 +1,11 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useAppData } from '../store/AppDataContext';
 import { formatDisplayDate } from '../logic/dateUtils';
 
 interface Props {
   selectedDates: Set<string>;
   onGoToCalendar: () => void;
+  onAllChecked: () => void;
 }
 
 const NON_SCALABLE = ['適量', '少々', 'お好みで', '適宜'];
@@ -30,7 +31,7 @@ interface AggregatedIngredient {
   servingPairs: ServingPairCount[];
 }
 
-export function ShoppingList({ selectedDates, onGoToCalendar }: Props) {
+export function ShoppingList({ selectedDates, onGoToCalendar, onAllChecked }: Props) {
   const { mealPlan, allRecipesById, pantry, togglePantryOut, shoppingChecked, toggleShoppingChecked, clearShoppingChecked } =
     useAppData();
 
@@ -72,6 +73,13 @@ export function ShoppingList({ selectedDates, onGoToCalendar }: Props) {
 
   const allKeys = ingredientItems.map((i) => i.key);
   const checkedCount = allKeys.filter((k) => shoppingChecked[k]).length;
+
+  useEffect(() => {
+    if (allKeys.length > 0 && checkedCount === allKeys.length && outPantryItems.length === 0) {
+      onAllChecked();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [checkedCount, allKeys.length, outPantryItems.length]);
 
   return (
     <div className="screen">

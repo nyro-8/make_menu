@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useAppData } from '../store/AppDataContext';
 import type { Ingredient, Recipe } from '../types';
 
@@ -28,6 +28,13 @@ export function MenuManager() {
   const [cookMinutes, setCookMinutes] = useState('');
   const [memo, setMemo] = useState('');
   const [ingredients, setIngredients] = useState<Ingredient[]>([emptyIngredient()]);
+  const formRef = useRef<HTMLFormElement>(null);
+
+  useEffect(() => {
+    if (formOpen) {
+      formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [formOpen]);
 
   const nameSuggestions = useMemo(() => {
     const query = name.trim();
@@ -126,7 +133,7 @@ export function MenuManager() {
       </div>
 
       {formOpen && (
-        <form className="card recipe-form" onSubmit={handleSubmit}>
+        <form ref={formRef} className="card recipe-form" onSubmit={handleSubmit}>
           {editingTarget?.type === 'builtin' && (
             <p className="muted small">レシピ集のメニューを編集しています。「元に戻す」でいつでも元の内容に戻せます。</p>
           )}
