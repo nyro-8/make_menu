@@ -38,12 +38,6 @@
   gap: 10px;
 }
 
-/* カレンダー画面だけは画面の残り高さいっぱいに広げてスクロールを避ける */
-.calendar-screen {
-  flex: 1;
-  min-height: 0;
-}
-
 /* Tab bar */
 .tab-bar {
   flex-shrink: 0;
@@ -167,6 +161,32 @@
 }
 
 /* Calendar */
+.view-toggle {
+  display: flex;
+  gap: 6px;
+  background: var(--color-warn-bg);
+  padding: 4px;
+  border-radius: 10px;
+  align-self: flex-start;
+}
+
+.view-toggle button {
+  border: none;
+  background: transparent;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-muted);
+  cursor: pointer;
+}
+
+.view-toggle button.active {
+  background: var(--color-card);
+  color: var(--color-primary);
+  box-shadow: 0 1px 4px rgba(60, 40, 20, 0.12);
+}
+
 .calendar-toolbar {
   display: flex;
   align-items: center;
@@ -222,24 +242,22 @@
 .calendar-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  grid-auto-rows: 1fr;
   gap: 5px;
-  flex: 1;
-  min-height: 0;
 }
 
 .calendar-cell {
   position: relative;
+  aspect-ratio: 1 / 1.15;
   border: 1px solid var(--color-border);
-  border-radius: 12px;
+  border-radius: 10px;
   background: var(--color-card);
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   justify-content: flex-start;
-  padding: 7px 6px;
+  padding: 5px 4px;
   font-size: 0.65rem;
-  gap: 4px;
+  gap: 3px;
   cursor: pointer;
   overflow: hidden;
   text-align: left;
@@ -248,6 +266,16 @@
 
 .calendar-cell:active {
   transform: scale(0.96);
+}
+
+.calendar-cell.empty {
+  border: none;
+  background: transparent;
+  cursor: default;
+}
+
+.calendar-cell.empty:active {
+  transform: none;
 }
 
 .calendar-cell.today .cell-date {
@@ -263,21 +291,24 @@
 
 .cell-date {
   font-weight: 700;
-  font-size: 0.9rem;
+  font-size: 0.72rem;
   line-height: 1;
-  min-width: 24px;
-  height: 24px;
+  min-width: 18px;
+  height: 18px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 7px;
+  border-radius: 6px;
 }
 
 .cell-recipe {
-  font-size: 0.78rem;
-  line-height: 1.3;
+  font-size: 0.6rem;
+  line-height: 1.25;
   word-break: break-word;
-  white-space: normal;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .cell-check {
@@ -287,6 +318,95 @@
   color: var(--color-primary);
   font-weight: 700;
   font-size: 0.85rem;
+}
+
+.calendar-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.calendar-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-card);
+  padding: 10px 14px;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  box-shadow: 0 1px 4px rgba(60, 40, 20, 0.06);
+  transition: transform 0.1s, box-shadow 0.15s;
+}
+
+.calendar-row:active {
+  transform: scale(0.98);
+}
+
+.calendar-row.today {
+  border-color: var(--color-primary);
+}
+
+.calendar-row.selected {
+  background: #fff1e0;
+  border-color: var(--color-primary);
+  box-shadow: 0 2px 8px rgba(232, 106, 31, 0.18);
+}
+
+.row-date {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  width: 34px;
+  flex-shrink: 0;
+}
+
+.row-weekday {
+  font-size: 0.68rem;
+  color: var(--color-muted);
+  font-weight: 600;
+}
+
+.row-weekday.sat {
+  color: #3b82f6;
+}
+
+.row-weekday.sun {
+  color: #ef4444;
+}
+
+.row-daynum {
+  font-weight: 700;
+  font-size: 0.95rem;
+  line-height: 1;
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+}
+
+.calendar-row.today .row-daynum {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.row-recipe {
+  flex: 1;
+  font-size: 0.95rem;
+  line-height: 1.3;
+}
+
+.row-check {
+  color: var(--color-primary);
+  font-weight: 700;
+  font-size: 1.05rem;
+  flex-shrink: 0;
 }
 
 /* Modal */
@@ -581,6 +701,26 @@
   padding: 10px 12px;
   font-size: 0.92rem;
   box-shadow: 0 1px 4px rgba(60, 40, 20, 0.06);
+}
+
+.shopping-item:has(.ingredient-servings) {
+  align-items: flex-start;
+}
+
+.shopping-item .ingredient-servings {
+  padding-top: 1px;
+}
+
+.serving-pair {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.serving-pair + .serving-pair {
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 1px dashed var(--color-border);
 }
 
 .shopping-item span:first-of-type {
