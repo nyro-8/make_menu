@@ -15,7 +15,7 @@ interface AggregatedIngredient {
 }
 
 export function ShoppingList({ selectedDates, onGoToCalendar }: Props) {
-  const { mealPlan, allRecipesById, pantry, shoppingChecked, toggleShoppingChecked, clearShoppingChecked } =
+  const { mealPlan, allRecipesById, pantry, togglePantryOut, shoppingChecked, toggleShoppingChecked, clearShoppingChecked } =
     useAppData();
 
   const sortedDates = useMemo(() => [...selectedDates].sort(), [selectedDates]);
@@ -47,7 +47,7 @@ export function ShoppingList({ selectedDates, onGoToCalendar }: Props) {
 
   const outPantryItems = pantry.filter((p) => p.isOut);
 
-  const allKeys = [...ingredientItems.map((i) => i.key), ...outPantryItems.map((p) => `pantry:${p.id}`)];
+  const allKeys = ingredientItems.map((i) => i.key);
   const checkedCount = allKeys.filter((k) => shoppingChecked[k]).length;
 
   return (
@@ -81,17 +81,14 @@ export function ShoppingList({ selectedDates, onGoToCalendar }: Props) {
       {outPantryItems.length > 0 && (
         <>
           <h3 className="list-title">切れている調味料・常備品</h3>
+          <p className="muted small">チェックすると「買った」として調味料の在庫切れ状態が解除されます。</p>
           <div className="shopping-list">
-            {outPantryItems.map((p) => {
-              const key = `pantry:${p.id}`;
-              const checked = !!shoppingChecked[key];
-              return (
-                <label key={key} className={`shopping-item ${checked ? 'checked' : ''}`}>
-                  <input type="checkbox" checked={checked} onChange={() => toggleShoppingChecked(key)} />
-                  <span>{p.name}</span>
-                </label>
-              );
-            })}
+            {outPantryItems.map((p) => (
+              <label key={p.id} className="shopping-item">
+                <input type="checkbox" checked={false} onChange={() => togglePantryOut(p.id)} />
+                <span>{p.name}</span>
+              </label>
+            ))}
           </div>
         </>
       )}
