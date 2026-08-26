@@ -96,8 +96,10 @@ export function CalendarView({ selectedDates, setSelectedDates, onGoToShoppingLi
       )}
 
       <div className="calendar-weekdays">
-        {WEEKDAY_LABELS.map((w) => (
-          <div key={w} className="weekday-label">{w}</div>
+        {WEEKDAY_LABELS.map((w, i) => (
+          <div key={w} className={`weekday-label ${i === 5 ? 'sat' : ''} ${i === 6 ? 'sun' : ''}`}>
+            {w}
+          </div>
         ))}
       </div>
 
