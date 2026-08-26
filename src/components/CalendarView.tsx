@@ -89,13 +89,34 @@ export function CalendarView({ selectedDates, setSelectedDates, onGoToShoppingLi
 
       {viewMode === 'list' ? (
         <div className="calendar-toolbar">
-          <h2>{formatShortDate(listDates[0])} 〜 {formatShortDate(listDates[WINDOW_DAYS - 1])}</h2>
+          <button className="icon-btn" onClick={() => setListStart(addDays(listStart, -WINDOW_DAYS))} aria-label="前の2週間">‹</button>
+          <div className="toolbar-title-group">
+            <h2>{formatShortDate(listDates[0])} 〜 {formatShortDate(listDates[WINDOW_DAYS - 1])}</h2>
+            {listStart !== today && (
+              <button className="btn btn-small today-btn" onClick={() => setListStart(today)}>
+                今日に戻る
+              </button>
+            )}
+          </div>
           <button className="icon-btn" onClick={() => setListStart(addDays(listStart, WINDOW_DAYS))} aria-label="次の2週間">›</button>
         </div>
       ) : (
         <div className="calendar-toolbar">
           <button className="icon-btn" onClick={() => changeMonth(-1)} aria-label="前の月">‹</button>
-          <h2>{year}年{month}月</h2>
+          <div className="toolbar-title-group">
+            <h2>{year}年{month}月</h2>
+            {(year !== Number(today.slice(0, 4)) || month !== Number(today.slice(5, 7))) && (
+              <button
+                className="btn btn-small today-btn"
+                onClick={() => {
+                  setYear(Number(today.slice(0, 4)));
+                  setMonth(Number(today.slice(5, 7)));
+                }}
+              >
+                今日に戻る
+              </button>
+            )}
+          </div>
           <button className="icon-btn" onClick={() => changeMonth(1)} aria-label="次の月">›</button>
         </div>
       )}
