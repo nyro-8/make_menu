@@ -476,6 +476,14 @@
   margin-top: 12px;
 }
 
+.modal-actions-column {
+  flex-direction: column;
+}
+
+.modal-actions-column .btn {
+  width: 100%;
+}
+
 .day-detail-body {
   margin-top: 8px;
 }
@@ -611,6 +619,12 @@
   color: #fff;
 }
 
+.ingredient-group {
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed var(--color-border);
+}
+
 .ingredient-row {
   display: flex;
   gap: 6px;
@@ -620,18 +634,28 @@
 
 .ingredient-row input {
   min-width: 0;
-}
-
-.ingredient-row input:first-child {
-  flex: 3;
-}
-
-.ingredient-row input:last-of-type {
-  flex: 2;
+  flex: 1;
 }
 
 .ingredient-row .icon-btn {
   flex-shrink: 0;
+}
+
+.ingredient-amounts-row {
+  display: flex;
+  gap: 6px;
+}
+
+.ingredient-amounts-row input {
+  min-width: 0;
+  flex: 1;
+}
+
+.builtin-search {
+  padding: 9px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  margin-bottom: 4px;
 }
 
 .add-inline-form {

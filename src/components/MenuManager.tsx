@@ -3,7 +3,7 @@ import { useAppData } from '../store/AppDataContext';
 import type { Ingredient, Recipe } from '../types';
 
 function emptyIngredient(): Ingredient {
-  return { name: '', amount: '' };
+  return { name: '', amount: '', amount1: '', amount3: '' };
 }
 
 type EditingTarget = { type: 'custom' | 'builtin'; id: string } | null;
@@ -28,6 +28,7 @@ export function MenuManager() {
   const [cookMinutes, setCookMinutes] = useState('');
   const [memo, setMemo] = useState('');
   const [ingredients, setIngredients] = useState<Ingredient[]>([emptyIngredient()]);
+  const [builtinSearch, setBuiltinSearch] = useState('');
   const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
@@ -45,7 +46,15 @@ export function MenuManager() {
   }, [name, builtinRecipes]);
 
   function applySuggestion(recipe: Recipe) {
-    setIngredients(recipe.ingredients.length > 0 ? recipe.ingredients.map((i) => ({ ...i })) : [emptyIngredient()]);
+    setIngredients(
+      recipe.ingredients.length > 0
+        ? recipe.ingredients.map((ing) => ({
+            ...ing,
+            amount1: ing.amount1 ?? ing.amount,
+            amount3: ing.amount3 ?? ing.amount,
+          }))
+        : [emptyIngredient()],
+    );
     if (!cookMinutes && recipe.cookMinutes) setCookMinutes(String(recipe.cookMinutes));
   }
 
@@ -67,7 +76,15 @@ export function MenuManager() {
     setName(recipe.name);
     setCookMinutes(recipe.cookMinutes ? String(recipe.cookMinutes) : '');
     setMemo(recipe.memo ?? '');
-    setIngredients(recipe.ingredients.length > 0 ? recipe.ingredients : [emptyIngredient()]);
+    setIngredients(
+      recipe.ingredients.length > 0
+        ? recipe.ingredients.map((ing) => ({
+            ...ing,
+            amount1: ing.amount1 ?? ing.amount,
+            amount3: ing.amount3 ?? ing.amount,
+          }))
+        : [emptyIngredient()],
+    );
     setFormOpen(true);
   }
 
@@ -92,8 +109,17 @@ export function MenuManager() {
     e.preventDefault();
     const trimmedName = name.trim();
     if (!trimmedName) return;
-    const cleanIngredients = ingredients
-      .map((ing) => ({ name: ing.name.trim(), amount: ing.amount.trim() }))
+    const cleanIngredients: Ingredient[] = ingredients
+      .map((ing) => {
+        const trimmedIngName = ing.name.trim();
+        const amount1 = ing.amount1?.trim() || '';
+        const amount3 = ing.amount3?.trim() || '';
+        if (amount1 && amount3 && amount1 !== amount3) {
+          return { name: trimmedIngName, amount: `1人分 ${amount1} / 3人分 ${amount3}`, amount1, amount3 };
+        }
+        const single = amount1 || amount3;
+        return { name: trimmedIngName, amount: single };
+      })
       .filter((ing) => ing.name.length > 0);
 
     if (editingTarget?.type === 'builtin') {
@@ -168,21 +194,31 @@ export function MenuManager() {
 
           <div className="field">
             <span>材料</span>
+            <p className="muted small">分量は1人分・3人分どちらかだけの入力でもOKです。</p>
             {ingredients.map((ing, idx) => (
-              <div key={idx} className="ingredient-row">
-                <input
-                  placeholder="材料名"
-                  value={ing.name}
-                  onChange={(e) => updateIngredient(idx, 'name', e.target.value)}
-                />
-                <input
-                  placeholder="分量"
-                  value={ing.amount}
-                  onChange={(e) => updateIngredient(idx, 'amount', e.target.value)}
-                />
-                <button type="button" className="icon-btn" onClick={() => removeIngredientRow(idx)} aria-label="削除">
-                  ✕
-                </button>
+              <div key={idx} className="ingredient-group">
+                <div className="ingredient-row">
+                  <input
+                    placeholder="材料名"
+                    value={ing.name}
+                    onChange={(e) => updateIngredient(idx, 'name', e.target.value)}
+                  />
+                  <button type="button" className="icon-btn" onClick={() => removeIngredientRow(idx)} aria-label="削除">
+                    ✕
+                  </button>
+                </div>
+                <div className="ingredient-amounts-row">
+                  <input
+                    placeholder="1人分の分量"
+                    value={ing.amount1 ?? ''}
+                    onChange={(e) => updateIngredient(idx, 'amount1', e.target.value)}
+                  />
+                  <input
+                    placeholder="3人分の分量"
+                    value={ing.amount3 ?? ''}
+                    onChange={(e) => updateIngredient(idx, 'amount3', e.target.value)}
+                  />
+                </div>
               </div>
             ))}
             <button type="button" className="btn btn-small" onClick={addIngredientRow}>
@@ -236,8 +272,16 @@ export function MenuManager() {
       <p className="muted small">
         チェックを外すと、そのメニューは献立の自動作成で使われなくなります。「編集」で材料を直接書き換えることもできます。
       </p>
+      <input
+        className="builtin-search"
+        value={builtinSearch}
+        onChange={(e) => setBuiltinSearch(e.target.value)}
+        placeholder="メニュー名で検索"
+      />
       <div className="builtin-list">
-        {builtinRecipes.map((r) => {
+        {builtinRecipes
+          .filter((r) => r.name.includes(builtinSearch.trim()))
+          .map((r) => {
           const included = !excludedBuiltinIds.includes(r.id);
           const overridden = isBuiltinOverridden(r.id);
           return (

@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useMemo, useState, type ReactNode
 import type { AppData, Ingredient, PantryItem, Recipe } from '../types';
 import { builtinRecipes } from '../data/builtinRecipes';
 import { generateId, loadAppData, saveAppData } from '../store/storage';
-import { generateMealPlan, pickReplacement } from '../logic/planGenerator';
+import { fillEmptySlots, generateMealPlan, pickReplacement } from '../logic/planGenerator';
 import { addDays } from '../logic/dateUtils';
 
 interface AppDataContextValue {
@@ -24,7 +24,7 @@ interface AppDataContextValue {
   resetBuiltinRecipe: (id: string) => void;
 
   setMealPlanDay: (date: string, recipeId: string | null) => void;
-  generatePlanForDates: (dates: string[]) => void;
+  generatePlanForDates: (dates: string[], options?: { overwrite?: boolean }) => void;
   regenerateDay: (date: string) => void;
 
   addPantryItem: (name: string) => void;
@@ -141,7 +141,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
       setData((prev) => ({ ...prev, mealPlan: { ...prev.mealPlan, [date]: recipeId } }));
     },
 
-    generatePlanForDates: (dates) => {
+    generatePlanForDates: (dates, options) => {
       setData((prev) => {
         if (dates.length === 0) return prev;
         const excluded = new Set(prev.excludedBuiltinIds);
@@ -149,7 +149,19 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
         const sorted = [...dates].sort();
         const dayBefore = addDays(sorted[0], -1);
         const anchor = prev.mealPlan[dayBefore] ?? null;
-        const generated = generateMealPlan(pool, sorted, anchor);
+
+        if (options?.overwrite) {
+          const generated = generateMealPlan(pool, sorted, anchor);
+          return { ...prev, mealPlan: { ...prev.mealPlan, ...generated } };
+        }
+
+        const sequence = sorted.map((d) => prev.mealPlan[d] ?? null);
+        const filled = fillEmptySlots(pool, sequence, anchor);
+        const generated: Record<string, string> = {};
+        sorted.forEach((d, i) => {
+          if (!prev.mealPlan[d] && filled[i]) generated[d] = filled[i] as string;
+        });
+        if (Object.keys(generated).length === 0) return prev;
         return { ...prev, mealPlan: { ...prev.mealPlan, ...generated } };
       });
     },

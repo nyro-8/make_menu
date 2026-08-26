@@ -30,6 +30,7 @@ export function CalendarView({ selectedDates, setSelectedDates, onGoToShoppingLi
   const [month, setMonth] = useState(Number(today.slice(5, 7)));
   const [selectionMode, setSelectionMode] = useState(false);
   const [openDate, setOpenDate] = useState<string | null>(null);
+  const [generateConfirmOpen, setGenerateConfirmOpen] = useState(false);
 
   const {
     mealPlan,
@@ -76,9 +77,20 @@ export function CalendarView({ selectedDates, setSelectedDates, onGoToShoppingLi
     }
   }
 
-  function handleGenerate() {
-    if (viewMode === 'list') generatePlanForDates(listDates);
-    else generatePlanForDates(getMonthDates(year, month));
+  const generateTargetDates = viewMode === 'list' ? listDates : getMonthDates(year, month);
+  const hasExistingInRange = generateTargetDates.some((d) => !!mealPlan[d]);
+
+  function handleGenerateClick() {
+    if (hasExistingInRange) {
+      setGenerateConfirmOpen(true);
+    } else {
+      generatePlanForDates(generateTargetDates);
+    }
+  }
+
+  function handleGenerate(overwrite: boolean) {
+    generatePlanForDates(generateTargetDates, { overwrite });
+    setGenerateConfirmOpen(false);
   }
 
   const openRecipe = openDate ? allRecipesById.get(mealPlan[openDate] ?? '') ?? null : null;
@@ -94,7 +106,7 @@ export function CalendarView({ selectedDates, setSelectedDates, onGoToShoppingLi
             カレンダー
           </button>
         </div>
-        <button className="btn btn-small generate-btn" onClick={handleGenerate}>
+        <button className="btn btn-small generate-btn" onClick={handleGenerateClick}>
           {viewMode === 'list' ? '2週間分を自動作成' : 'この月を自動作成'}
         </button>
       </div>
@@ -227,6 +239,31 @@ export function CalendarView({ selectedDates, setSelectedDates, onGoToShoppingLi
             })}
           </div>
         </>
+      )}
+
+      {generateConfirmOpen && (
+        <div className="modal-overlay" onClick={() => setGenerateConfirmOpen(false)}>
+          <div className="modal-sheet" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>献立を自動作成</h3>
+              <button className="icon-btn" onClick={() => setGenerateConfirmOpen(false)} aria-label="閉じる">✕</button>
+            </div>
+            <p className="day-detail-body">
+              この期間にはすでに決まっている献立があります。どちらの方法で作成しますか?
+            </p>
+            <div className="modal-actions modal-actions-column">
+              <button className="btn btn-primary" onClick={() => handleGenerate(false)}>
+                未定の日だけ埋める
+              </button>
+              <button className="btn btn-danger-outline" onClick={() => handleGenerate(true)}>
+                すべて上書きして作り直す
+              </button>
+              <button className="btn" onClick={() => setGenerateConfirmOpen(false)}>
+                キャンセル
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {openDate && (
