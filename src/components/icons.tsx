@@ -41,6 +41,33 @@ export function JarIcon({ className }: IconProps) {
   );
 }
 
+/**
+ * オリジナルのうさぎマスコット(特定キャラクターを模したものではない、
+ * 垂れ耳・笑い顔のデザイン)。
+ */
+export function BunnyMascot({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 60 60" fill="none">
+      {/* 垂れ耳 */}
+      <ellipse cx="16" cy="19" rx="6.5" ry="15" fill="#fff" stroke="#5b4650" strokeWidth="1.8" transform="rotate(-18 16 19)" />
+      <ellipse cx="16" cy="19" rx="3.2" ry="10.5" fill="#ffd3e0" transform="rotate(-18 16 19)" />
+      <ellipse cx="44" cy="19" rx="6.5" ry="15" fill="#fff" stroke="#5b4650" strokeWidth="1.8" transform="rotate(18 44 19)" />
+      <ellipse cx="44" cy="19" rx="3.2" ry="10.5" fill="#ffd3e0" transform="rotate(18 44 19)" />
+      {/* 顔 */}
+      <ellipse cx="30" cy="37" rx="17" ry="15" fill="#fff" stroke="#5b4650" strokeWidth="1.8" />
+      {/* ほっぺ */}
+      <circle cx="19" cy="41" r="3.2" fill="#ffb8cc" opacity="0.7" />
+      <circle cx="41" cy="41" r="3.2" fill="#ffb8cc" opacity="0.7" />
+      {/* 目(にっこり) */}
+      <path d="M22 34q3 -4 6 0" stroke="#5b4650" strokeWidth="1.8" strokeLinecap="round" fill="none" />
+      <path d="M32 34q3 -4 6 0" stroke="#5b4650" strokeWidth="1.8" strokeLinecap="round" fill="none" />
+      {/* 鼻・口 */}
+      <ellipse cx="30" cy="40.5" rx="1.6" ry="1.2" fill="#ec5f88" />
+      <path d="M30 41.5v1.5M30 43q-2.5 2 -5 0.5M30 43q2.5 2 5 0.5" stroke="#5b4650" strokeWidth="1.4" strokeLinecap="round" fill="none" />
+    </svg>
+  );
+}
+
 export function CartIcon({ className }: IconProps) {
   return (
     <svg className={className} {...base}>

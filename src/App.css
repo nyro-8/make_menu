@@ -10,17 +10,26 @@
 
 .app-header {
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   padding: max(14px, env(safe-area-inset-top)) 16px 10px;
   background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
   color: #fff;
   z-index: 5;
-  box-shadow: 0 2px 10px rgba(180, 90, 30, 0.25);
+  box-shadow: 0 2px 10px rgba(236, 95, 136, 0.28);
 }
 
 .app-header h1 {
   margin: 0;
   font-size: 1.15rem;
   font-weight: 700;
+}
+
+.header-mascot {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
 }
 
 .app-main {
@@ -82,7 +91,7 @@
   background: var(--color-card);
   color: var(--color-text);
   padding: 10px 14px;
-  border-radius: 10px;
+  border-radius: 16px;
   font-size: 0.9rem;
   cursor: pointer;
   transition: transform 0.1s, box-shadow 0.15s, opacity 0.15s;
@@ -102,7 +111,7 @@
   border-color: var(--color-primary);
   color: #fff;
   font-weight: 600;
-  box-shadow: 0 3px 10px rgba(200, 90, 20, 0.28);
+  box-shadow: 0 3px 10px rgba(236, 95, 136, 0.32);
 }
 
 .btn-small {
@@ -178,7 +187,7 @@
   gap: 6px;
   background: var(--color-warn-bg);
   padding: 4px;
-  border-radius: 10px;
+  border-radius: 16px;
 }
 
 .generate-btn {
@@ -201,7 +210,7 @@
 .view-toggle button.active {
   background: var(--color-card);
   color: var(--color-primary);
-  box-shadow: 0 1px 4px rgba(60, 40, 20, 0.12);
+  box-shadow: 0 1px 4px rgba(200, 110, 140, 0.16);
 }
 
 .calendar-toolbar {
@@ -239,7 +248,7 @@
   justify-content: space-between;
   background: var(--color-warn-bg);
   color: var(--color-warn-text);
-  border-radius: 10px;
+  border-radius: 16px;
   padding: 8px 12px;
   font-size: 0.85rem;
   gap: 8px;
@@ -261,11 +270,11 @@
 }
 
 .weekday-label.sat {
-  color: #3b82f6;
+  color: #5aa9dd;
 }
 
 .weekday-label.sun {
-  color: #ef4444;
+  color: #ef6a86;
 }
 
 .calendar-grid {
@@ -278,7 +287,7 @@
   position: relative;
   aspect-ratio: 1 / 1.15;
   border: 1px solid var(--color-border);
-  border-radius: 10px;
+  border-radius: 16px;
   background: var(--color-card);
   display: flex;
   flex-direction: column;
@@ -313,9 +322,9 @@
 }
 
 .calendar-cell.selected {
-  background: #fff1e0;
+  background: #ffe3ec;
   border-color: var(--color-primary);
-  box-shadow: 0 2px 8px rgba(232, 106, 31, 0.18);
+  box-shadow: 0 2px 8px rgba(236, 95, 136, 0.22);
 }
 
 .cell-date {
@@ -361,13 +370,13 @@
   align-items: center;
   gap: 12px;
   border: 1px solid var(--color-border);
-  border-radius: 12px;
+  border-radius: 18px;
   background: var(--color-card);
   padding: 10px 14px;
   cursor: pointer;
   text-align: left;
   width: 100%;
-  box-shadow: 0 1px 4px rgba(60, 40, 20, 0.06);
+  box-shadow: 0 1px 4px rgba(200, 110, 140, 0.10);
   transition: transform 0.1s, box-shadow 0.15s;
 }
 
@@ -380,9 +389,9 @@
 }
 
 .calendar-row.selected {
-  background: #fff1e0;
+  background: #ffe3ec;
   border-color: var(--color-primary);
-  box-shadow: 0 2px 8px rgba(232, 106, 31, 0.18);
+  box-shadow: 0 2px 8px rgba(236, 95, 136, 0.22);
 }
 
 .row-date {
@@ -401,11 +410,11 @@
 }
 
 .row-weekday.sat {
-  color: #3b82f6;
+  color: #5aa9dd;
 }
 
 .row-weekday.sun {
-  color: #ef4444;
+  color: #ef6a86;
 }
 
 .row-daynum {
@@ -542,7 +551,7 @@
 .recipe-picker-item {
   text-align: left;
   padding: 10px 12px;
-  border-radius: 10px;
+  border-radius: 16px;
   border: 1px solid var(--color-border);
   background: #fff;
   display: flex;
@@ -553,7 +562,7 @@
 
 .recipe-picker-item.active {
   border-color: var(--color-primary);
-  background: #fff1e0;
+  background: #ffe3ec;
 }
 
 .badge {
@@ -594,7 +603,7 @@
   margin-bottom: 10px;
   padding: 8px 10px;
   background: var(--color-warn-bg);
-  border-radius: 10px;
+  border-radius: 16px;
 }
 
 .suggestion-chips {
@@ -704,10 +713,10 @@
   gap: 8px;
   flex-wrap: wrap;
   background: var(--color-card);
-  border-radius: 10px;
+  border-radius: 16px;
   padding: 10px 12px;
   font-size: 0.9rem;
-  box-shadow: 0 1px 4px rgba(60, 40, 20, 0.06);
+  box-shadow: 0 1px 4px rgba(200, 110, 140, 0.10);
 }
 
 .builtin-checkbox-label {
@@ -728,9 +737,9 @@
   align-items: center;
   gap: 10px;
   background: var(--color-card);
-  border-radius: 10px;
+  border-radius: 16px;
   padding: 10px 12px;
-  box-shadow: 0 1px 4px rgba(60, 40, 20, 0.06);
+  box-shadow: 0 1px 4px rgba(200, 110, 140, 0.10);
 }
 
 .pantry-item.out {
@@ -759,10 +768,10 @@
   align-items: center;
   gap: 10px;
   background: var(--color-card);
-  border-radius: 10px;
+  border-radius: 16px;
   padding: 10px 12px;
   font-size: 0.92rem;
-  box-shadow: 0 1px 4px rgba(60, 40, 20, 0.06);
+  box-shadow: 0 1px 4px rgba(200, 110, 140, 0.10);
 }
 
 .shopping-item:has(.ingredient-servings) {
