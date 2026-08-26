@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useAppData } from '../store/AppDataContext';
-import { getCalendarGrid, getMonthDates, isSameMonth, todayStr, WEEKDAY_LABELS } from '../logic/dateUtils';
+import { addDays, formatShortDate, getMondayOfWeek, todayStr, WEEKDAY_LABELS } from '../logic/dateUtils';
 import { DayDetailModal } from './DayDetailModal';
 
 interface Props {
@@ -9,31 +9,21 @@ interface Props {
   onGoToShoppingList: () => void;
 }
 
+const WINDOW_DAYS = 14;
+
 export function CalendarView({ selectedDates, setSelectedDates, onGoToShoppingList }: Props) {
   const today = todayStr();
-  const [year, setYear] = useState(Number(today.slice(0, 4)));
-  const [month, setMonth] = useState(Number(today.slice(5, 7)));
+  const [weekStart, setWeekStart] = useState(() => getMondayOfWeek(today));
   const [selectionMode, setSelectionMode] = useState(false);
   const [openDate, setOpenDate] = useState<string | null>(null);
 
   const { mealPlan, allRecipesById, activeRecipes, generatePlanForDates, setMealPlanDay, regenerateDay } =
     useAppData();
 
-  const grid = useMemo(() => getCalendarGrid(year, month), [year, month]);
-
-  function changeMonth(delta: number) {
-    let newMonth = month + delta;
-    let newYear = year;
-    if (newMonth > 12) {
-      newMonth = 1;
-      newYear += 1;
-    } else if (newMonth < 1) {
-      newMonth = 12;
-      newYear -= 1;
-    }
-    setMonth(newMonth);
-    setYear(newYear);
-  }
+  const windowDates = useMemo(
+    () => Array.from({ length: WINDOW_DAYS }, (_, i) => addDays(weekStart, i)),
+    [weekStart],
+  );
 
   function toggleSelectDate(date: string) {
     const next = new Set(selectedDates);
@@ -50,9 +40,8 @@ export function CalendarView({ selectedDates, setSelectedDates, onGoToShoppingLi
     }
   }
 
-  function handleGenerateMonth() {
-    const dates = getMonthDates(year, month);
-    generatePlanForDates(dates);
+  function handleGenerateWindow() {
+    generatePlanForDates(windowDates);
   }
 
   const openRecipe = openDate ? allRecipesById.get(mealPlan[openDate] ?? '') ?? null : null;
@@ -60,14 +49,14 @@ export function CalendarView({ selectedDates, setSelectedDates, onGoToShoppingLi
   return (
     <div className="screen calendar-screen">
       <div className="calendar-toolbar">
-        <button className="icon-btn" onClick={() => changeMonth(-1)} aria-label="前の月">‹</button>
-        <h2>{year}年{month}月</h2>
-        <button className="icon-btn" onClick={() => changeMonth(1)} aria-label="次の月">›</button>
+        <button className="icon-btn" onClick={() => setWeekStart(addDays(weekStart, -WINDOW_DAYS))} aria-label="前の2週間">‹</button>
+        <h2>{formatShortDate(windowDates[0])} 〜 {formatShortDate(windowDates[WINDOW_DAYS - 1])}</h2>
+        <button className="icon-btn" onClick={() => setWeekStart(addDays(weekStart, WINDOW_DAYS))} aria-label="次の2週間">›</button>
       </div>
 
       <div className="calendar-actions">
-        <button className="btn btn-primary" onClick={handleGenerateMonth}>
-          この月の献立を自動作成
+        <button className="btn btn-primary" onClick={handleGenerateWindow}>
+          この2週間の献立を自動作成
         </button>
         <button
           className={`btn ${selectionMode ? 'btn-primary' : ''}`}
@@ -104,17 +93,15 @@ export function CalendarView({ selectedDates, setSelectedDates, onGoToShoppingLi
       </div>
 
       <div className="calendar-grid">
-        {grid.map((date, i) => {
-          if (!date) return <div key={i} className="calendar-cell empty" />;
+        {windowDates.map((date) => {
           const recipeId = mealPlan[date];
           const recipe = recipeId ? allRecipesById.get(recipeId) : undefined;
           const isToday = date === today;
           const isSelected = selectedDates.has(date);
-          const inMonth = isSameMonth(date, year, month);
           return (
             <button
               key={date}
-              className={`calendar-cell ${isToday ? 'today' : ''} ${isSelected ? 'selected' : ''} ${inMonth ? '' : 'outside'}`}
+              className={`calendar-cell ${isToday ? 'today' : ''} ${isSelected ? 'selected' : ''}`}
               onClick={() => handleDayClick(date)}
             >
               <span className="cell-date">{Number(date.slice(-2))}</span>
