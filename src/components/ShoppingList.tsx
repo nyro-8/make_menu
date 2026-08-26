@@ -11,6 +11,7 @@ interface AggregatedIngredient {
   key: string;
   name: string;
   amounts: string[];
+  servingPairs: { amount1: string; amount3: string }[];
 }
 
 export function ShoppingList({ selectedDates, onGoToCalendar }: Props) {
@@ -28,11 +29,16 @@ export function ShoppingList({ selectedDates, onGoToCalendar }: Props) {
       if (!recipe) continue;
       for (const ing of recipe.ingredients) {
         const key = `ing:${ing.name}`;
-        const existing = map.get(key);
-        if (existing) {
-          if (ing.amount && !existing.amounts.includes(ing.amount)) existing.amounts.push(ing.amount);
-        } else {
-          map.set(key, { key, name: ing.name, amounts: ing.amount ? [ing.amount] : [] });
+        let entry = map.get(key);
+        if (!entry) {
+          entry = { key, name: ing.name, amounts: [], servingPairs: [] };
+          map.set(key, entry);
+        }
+        if (ing.amount1 && ing.amount3) {
+          const exists = entry.servingPairs.some((p) => p.amount1 === ing.amount1 && p.amount3 === ing.amount3);
+          if (!exists) entry.servingPairs.push({ amount1: ing.amount1, amount3: ing.amount3 });
+        } else if (ing.amount && !entry.amounts.includes(ing.amount)) {
+          entry.amounts.push(ing.amount);
         }
       }
     }
@@ -103,7 +109,18 @@ export function ShoppingList({ selectedDates, onGoToCalendar }: Props) {
                   <label key={item.key} className={`shopping-item ${checked ? 'checked' : ''}`}>
                     <input type="checkbox" checked={checked} onChange={() => toggleShoppingChecked(item.key)} />
                     <span>{item.name}</span>
-                    {item.amounts.length > 0 && <span className="muted small">{item.amounts.join('、')}</span>}
+                    {item.servingPairs.length > 0 ? (
+                      <span className="ingredient-servings">
+                        {item.servingPairs.map((p, i) => (
+                          <span key={i} className="serving-pair">
+                            <span><b>1人分</b> {p.amount1}</span>
+                            <span><b>3人分</b> {p.amount3}</span>
+                          </span>
+                        ))}
+                      </span>
+                    ) : (
+                      item.amounts.length > 0 && <span className="muted small">{item.amounts.join('、')}</span>
+                    )}
                   </label>
                 );
               })}

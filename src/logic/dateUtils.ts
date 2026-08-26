@@ -47,6 +47,16 @@ export function todayStr(): string {
 
 const WEEKDAY_JP = ['日', '月', '火', '水', '木', '金', '土'];
 
+export function getWeekdayJP(dateStr: string): string {
+  const [y, mo, da] = dateStr.split('-').map(Number);
+  return WEEKDAY_JP[new Date(y, mo - 1, da).getDay()];
+}
+
+export function getDayOfWeek(dateStr: string): number {
+  const [y, mo, da] = dateStr.split('-').map(Number);
+  return new Date(y, mo - 1, da).getDay();
+}
+
 export function formatDisplayDate(dateStr: string): string {
   const [y, mo, da] = dateStr.split('-').map(Number);
   const date = new Date(y, mo - 1, da);
