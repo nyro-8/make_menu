@@ -31,8 +31,15 @@ export function CalendarView({ selectedDates, setSelectedDates, onGoToShoppingLi
   const [selectionMode, setSelectionMode] = useState(false);
   const [openDate, setOpenDate] = useState<string | null>(null);
 
-  const { mealPlan, allRecipesById, activeRecipes, generatePlanForDates, setMealPlanDay, regenerateDay } =
-    useAppData();
+  const {
+    mealPlan,
+    allRecipesById,
+    activeRecipes,
+    generatePlanForDates,
+    setMealPlanDay,
+    regenerateDay,
+    clearShoppingChecked,
+  } = useAppData();
 
   const listDates = useMemo(
     () => Array.from({ length: WINDOW_DAYS }, (_, i) => addDays(listStart, i)),
@@ -143,7 +150,10 @@ export function CalendarView({ selectedDates, setSelectedDates, onGoToShoppingLi
             <button
               className="btn btn-primary btn-small"
               disabled={selectedDates.size === 0}
-              onClick={onGoToShoppingList}
+              onClick={() => {
+                clearShoppingChecked();
+                onGoToShoppingList();
+              }}
             >
               買い物リストを見る
             </button>

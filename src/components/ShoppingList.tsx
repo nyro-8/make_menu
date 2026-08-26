@@ -7,11 +7,27 @@ interface Props {
   onGoToCalendar: () => void;
 }
 
+const NON_SCALABLE = ['適量', '少々', 'お好みで', '適宜'];
+function isNonScalable(amount: string): boolean {
+  return NON_SCALABLE.some((p) => amount.includes(p));
+}
+
+interface AmountCount {
+  text: string;
+  count: number;
+}
+
+interface ServingPairCount {
+  amount1: string;
+  amount3: string;
+  count: number;
+}
+
 interface AggregatedIngredient {
   key: string;
   name: string;
-  amounts: string[];
-  servingPairs: { amount1: string; amount3: string }[];
+  amounts: AmountCount[];
+  servingPairs: ServingPairCount[];
 }
 
 export function ShoppingList({ selectedDates, onGoToCalendar }: Props) {
@@ -35,10 +51,17 @@ export function ShoppingList({ selectedDates, onGoToCalendar }: Props) {
           map.set(key, entry);
         }
         if (ing.amount1 && ing.amount3) {
-          const exists = entry.servingPairs.some((p) => p.amount1 === ing.amount1 && p.amount3 === ing.amount3);
-          if (!exists) entry.servingPairs.push({ amount1: ing.amount1, amount3: ing.amount3 });
-        } else if (ing.amount && !entry.amounts.includes(ing.amount)) {
-          entry.amounts.push(ing.amount);
+          const pair = entry.servingPairs.find((p) => p.amount1 === ing.amount1 && p.amount3 === ing.amount3);
+          if (pair) pair.count += 1;
+          else entry.servingPairs.push({ amount1: ing.amount1, amount3: ing.amount3, count: 1 });
+        } else if (ing.amount) {
+          if (isNonScalable(ing.amount)) {
+            if (!entry.amounts.some((a) => a.text === ing.amount)) entry.amounts.push({ text: ing.amount, count: 1 });
+          } else {
+            const found = entry.amounts.find((a) => a.text === ing.amount);
+            if (found) found.count += 1;
+            else entry.amounts.push({ text: ing.amount, count: 1 });
+          }
         }
       }
     }
@@ -110,13 +133,23 @@ export function ShoppingList({ selectedDates, onGoToCalendar }: Props) {
                       <span className="ingredient-servings">
                         {item.servingPairs.map((p, i) => (
                           <span key={i} className="serving-pair">
-                            <span><b>1人分</b> {p.amount1}</span>
-                            <span><b>3人分</b> {p.amount3}</span>
+                            <span>
+                              <b>1人分</b> {p.amount1}
+                              {p.count > 1 ? ` ×${p.count}` : ''}
+                            </span>
+                            <span>
+                              <b>3人分</b> {p.amount3}
+                              {p.count > 1 ? ` ×${p.count}` : ''}
+                            </span>
                           </span>
                         ))}
                       </span>
                     ) : (
-                      item.amounts.length > 0 && <span className="muted small">{item.amounts.join('、')}</span>
+                      item.amounts.length > 0 && (
+                        <span className="muted small">
+                          {item.amounts.map((a) => (a.count > 1 ? `${a.text} ×${a.count}` : a.text)).join('、')}
+                        </span>
+                      )
                     )}
                   </label>
                 );
