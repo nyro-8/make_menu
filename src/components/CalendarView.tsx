@@ -58,7 +58,7 @@ export function CalendarView({ selectedDates, setSelectedDates, onGoToShoppingLi
   const openRecipe = openDate ? allRecipesById.get(mealPlan[openDate] ?? '') ?? null : null;
 
   return (
-    <div className="screen">
+    <div className="screen calendar-screen">
       <div className="calendar-toolbar">
         <button className="icon-btn" onClick={() => changeMonth(-1)} aria-label="前の月">‹</button>
         <h2>{year}年{month}月</h2>
