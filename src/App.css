@@ -166,13 +166,25 @@
 }
 
 /* Calendar */
+.view-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
 .view-toggle {
   display: flex;
   gap: 6px;
   background: var(--color-warn-bg);
   padding: 4px;
   border-radius: 10px;
-  align-self: flex-start;
+}
+
+.generate-btn {
+  color: var(--color-muted);
+  border-style: dashed;
+  flex-shrink: 0;
 }
 
 .view-toggle button {

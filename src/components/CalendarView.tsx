@@ -85,12 +85,17 @@ export function CalendarView({ selectedDates, setSelectedDates, onGoToShoppingLi
 
   return (
     <div className="screen">
-      <div className="view-toggle">
-        <button className={viewMode === 'list' ? 'active' : ''} onClick={() => setViewMode('list')}>
-          リスト
-        </button>
-        <button className={viewMode === 'calendar' ? 'active' : ''} onClick={() => setViewMode('calendar')}>
-          カレンダー
+      <div className="view-toggle-row">
+        <div className="view-toggle">
+          <button className={viewMode === 'list' ? 'active' : ''} onClick={() => setViewMode('list')}>
+            リスト
+          </button>
+          <button className={viewMode === 'calendar' ? 'active' : ''} onClick={() => setViewMode('calendar')}>
+            カレンダー
+          </button>
+        </div>
+        <button className="btn btn-small generate-btn" onClick={handleGenerate}>
+          {viewMode === 'list' ? '2週間分を自動作成' : 'この月を自動作成'}
         </button>
       </div>
 
@@ -129,9 +134,6 @@ export function CalendarView({ selectedDates, setSelectedDates, onGoToShoppingLi
       )}
 
       <div className="calendar-actions">
-        <button className="btn btn-primary" onClick={handleGenerate}>
-          {viewMode === 'list' ? 'この2週間の献立を自動作成' : 'この月の献立を自動作成'}
-        </button>
         <button
           className={`btn ${selectionMode ? 'btn-primary' : ''}`}
           onClick={() => setSelectionMode((v) => !v)}
