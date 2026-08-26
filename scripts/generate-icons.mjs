@@ -101,6 +101,23 @@ function fillCircle(rgba, w, cx, cy, radius, r, g, b, a, aa = true) {
   }
 }
 
+function fillEllipse(rgba, w, cx, cy, rx, ry, angleDeg, r, g, b, a) {
+  const angle = (angleDeg * Math.PI) / 180;
+  const cosA = Math.cos(-angle);
+  const sinA = Math.sin(-angle);
+  const maxR = Math.max(rx, ry) + 2;
+  for (let y = Math.floor(cy - maxR); y <= cy + maxR; y++) {
+    for (let x = Math.floor(cx - maxR); x <= cx + maxR; x++) {
+      const dx = x + 0.5 - cx;
+      const dy = y + 0.5 - cy;
+      const ex = dx * cosA - dy * sinA;
+      const ey = dx * sinA + dy * cosA;
+      const val = (ex * ex) / (rx * rx) + (ey * ey) / (ry * ry);
+      if (val <= 1) setPx(rgba, w, x, y, r, g, b, a);
+    }
+  }
+}
+
 function strokeArc(rgba, w, cx, cy, radius, thickness, startDeg, endDeg, r, g, b, a) {
   const steps = 200;
   for (let i = 0; i <= steps; i++) {
@@ -121,35 +138,41 @@ function makeIcon(size, { padded = false } = {}) {
     rgba[i + 2] = 0;
     rgba[i + 3] = 0;
   }
-  const bg = { r: 0xe8, g: 0x6a, b: 0x1f }; // warm orange
-  const radius = padded ? size * 0.5 : size * 0.22;
+  const bg = { r: 0xec, g: 0x5f, b: 0x88 }; // うさぎモチーフ用のローズピンク
+  const radius = padded ? size * 0.5 : size * 0.24;
   fillRoundedRect(rgba, size, size, radius, bg.r, bg.g, bg.b, 255);
 
   const cx = size / 2;
-  const cy = size * 0.56;
-  const plateR = size * 0.3;
-  // plate (white)
-  fillCircle(rgba, size, cx, cy, plateR, 255, 255, 255, 255);
-  // plate rim shadow
-  strokeArc(rgba, size, cx, cy, plateR * 0.86, size * 0.012, 0, 360, 0xe0, 0xc9, 0xa8, 120);
-  // food mound (green)
-  fillCircle(rgba, size, cx, cy - plateR * 0.05, plateR * 0.52, 0x4c, 0xaf, 0x50, 255);
-  // rice/garnish highlights
-  fillCircle(rgba, size, cx - plateR * 0.18, cy - plateR * 0.28, plateR * 0.12, 0xff, 0xc1, 0x07, 255);
-  fillCircle(rgba, size, cx + plateR * 0.22, cy - plateR * 0.18, plateR * 0.1, 0xff, 0xff, 0xff, 230);
-  fillCircle(rgba, size, cx - plateR * 0.02, cy + plateR * 0.15, plateR * 0.09, 0xf4, 0x43, 0x36, 255);
+  const cy = size * 0.58;
+  const faceR = size * 0.27;
+  const white = { r: 255, g: 255, b: 255 };
+  const plum = { r: 0x5b, g: 0x46, b: 0x50 };
+  const pink = { r: 0xff, g: 0xd3, b: 0xe0 };
+  const cheek = { r: 0xff, g: 0xb8, b: 0xcc };
+  const nose = { r: 0xec, g: 0x5f, b: 0x88 };
 
-  // steam lines
-  const steamColor = { r: 255, g: 255, b: 255 };
-  for (const off of [-plateR * 0.32, plateR * 0.32]) {
-    for (let i = 0; i < 40; i++) {
-      const t = i / 40;
-      const y = cy - plateR * 0.85 - t * plateR * 0.6;
-      const x = cx + off + Math.sin(t * Math.PI * 2.2) * plateR * 0.08;
-      const a = (1 - t) * 160;
-      fillCircle(rgba, size, x, y, size * 0.012, steamColor.r, steamColor.g, steamColor.b, a, false);
-    }
-  }
+  // 垂れ耳(白)+内耳(ピンク)
+  const earCx = size * 0.27;
+  const earCy = size * 0.32;
+  fillEllipse(rgba, size, earCx, earCy, faceR * 0.38, faceR * 0.88, -18, white.r, white.g, white.b, 255);
+  fillEllipse(rgba, size, earCx, earCy, faceR * 0.19, faceR * 0.62, -18, pink.r, pink.g, pink.b, 255);
+  fillEllipse(rgba, size, size - earCx, earCy, faceR * 0.38, faceR * 0.88, 18, white.r, white.g, white.b, 255);
+  fillEllipse(rgba, size, size - earCx, earCy, faceR * 0.19, faceR * 0.62, 18, pink.r, pink.g, pink.b, 255);
+
+  // 顔(白)
+  fillCircle(rgba, size, cx, cy, faceR, white.r, white.g, white.b, 255);
+
+  // ほっぺ
+  fillCircle(rgba, size, cx - faceR * 0.62, cy + faceR * 0.22, faceR * 0.22, cheek.r, cheek.g, cheek.b, 180);
+  fillCircle(rgba, size, cx + faceR * 0.62, cy + faceR * 0.22, faceR * 0.22, cheek.r, cheek.g, cheek.b, 180);
+
+  // 目(にっこりアーチ)
+  const eyeR = faceR * 0.34;
+  strokeArc(rgba, size, cx - faceR * 0.36, cy - faceR * 0.08, eyeR, size * 0.018, 25, 155, plum.r, plum.g, plum.b, 255);
+  strokeArc(rgba, size, cx + faceR * 0.36, cy - faceR * 0.08, eyeR, size * 0.018, 25, 155, plum.r, plum.g, plum.b, 255);
+
+  // 鼻
+  fillCircle(rgba, size, cx, cy + faceR * 0.22, faceR * 0.09, nose.r, nose.g, nose.b, 255);
 
   return rgba;
 }
