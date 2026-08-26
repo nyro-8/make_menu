@@ -1,3 +1,5 @@
+import { useId } from 'react';
+
 interface IconProps {
   className?: string;
 }
@@ -46,33 +48,68 @@ export function JarIcon({ className }: IconProps) {
  * 丸い頭・前歯・八の字眉のデザイン)。
  */
 export function BeaverMascot({ className }: IconProps) {
+  const uid = useId();
+  const headGrad = `beaverHead${uid}`;
+  const earGrad = `beaverEar${uid}`;
+  const muzzleGrad = `beaverMuzzle${uid}`;
+  const blushGrad = `beaverBlush${uid}`;
   return (
-    <svg className={className} viewBox="0 0 60 60" fill="none">
+    <svg className={className} viewBox="0 0 200 200">
+      <defs>
+        <radialGradient id={headGrad} cx="38%" cy="32%" r="75%">
+          <stop offset="0%" stopColor="#c08b57" />
+          <stop offset="55%" stopColor="#a9713f" />
+          <stop offset="100%" stopColor="#95602f" />
+        </radialGradient>
+        <radialGradient id={earGrad} cx="35%" cy="30%" r="75%">
+          <stop offset="0%" stopColor="#a06f3c" />
+          <stop offset="100%" stopColor="#7c4e26" />
+        </radialGradient>
+        <radialGradient id={muzzleGrad} cx="40%" cy="30%" r="80%">
+          <stop offset="0%" stopColor="#f7e6c4" />
+          <stop offset="100%" stopColor="#e3c393" />
+        </radialGradient>
+        <radialGradient id={blushGrad} cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#ef9a5f" stopOpacity="0.6" />
+          <stop offset="100%" stopColor="#ef9a5f" stopOpacity="0" />
+        </radialGradient>
+      </defs>
+
       {/* 耳 */}
-      <circle cx="15" cy="14" r="7.5" fill="#8a5a30" />
-      <circle cx="45" cy="14" r="7.5" fill="#8a5a30" />
-      <circle cx="15" cy="14" r="3.6" fill="#c98f57" />
-      <circle cx="45" cy="14" r="3.6" fill="#c98f57" />
+      <circle cx="56" cy="58" r="18" fill={`url(#${earGrad})`} />
+      <circle cx="144" cy="58" r="18" fill={`url(#${earGrad})`} />
+      <circle cx="56" cy="58" r="9" fill="#d9a468" />
+      <circle cx="144" cy="58" r="9" fill="#d9a468" />
+
       {/* 頭 */}
-      <circle cx="30" cy="31" r="19" fill="#a9713f" />
+      <circle cx="100" cy="102" r="58" fill={`url(#${headGrad})`} />
+
       {/* マズル */}
-      <ellipse cx="30" cy="36" rx="12" ry="10" fill="#e8cfa0" />
+      <ellipse cx="100" cy="128" rx="36" ry="30" fill={`url(#${muzzleGrad})`} />
+
       {/* ほっぺ */}
-      <circle cx="17" cy="34" r="3.6" fill="#e8a06a" opacity="0.6" />
-      <circle cx="43" cy="34" r="3.6" fill="#e8a06a" opacity="0.6" />
+      <circle cx="63" cy="118" r="17" fill={`url(#${blushGrad})`} />
+      <circle cx="137" cy="118" r="17" fill={`url(#${blushGrad})`} />
+
       {/* 八の字眉 */}
-      <path d="M25 20.5L16 25" stroke="#4a3626" strokeWidth="2.2" strokeLinecap="round" />
-      <path d="M35 20.5L44 25" stroke="#4a3626" strokeWidth="2.2" strokeLinecap="round" />
+      <path d="M84 80 Q74 84 65 92" stroke="#4a3626" strokeWidth="4.4" fill="none" strokeLinecap="round" />
+      <path d="M116 80 Q126 84 135 92" stroke="#4a3626" strokeWidth="4.4" fill="none" strokeLinecap="round" />
+
       {/* 目 */}
-      <circle cx="23" cy="29.5" r="2.6" fill="#4a3626" />
-      <circle cx="37" cy="29.5" r="2.6" fill="#4a3626" />
-      <circle cx="22.1" cy="28.6" r="0.9" fill="#fff" />
-      <circle cx="36.1" cy="28.6" r="0.9" fill="#fff" />
+      <circle cx="76" cy="100" r="7" fill="#3c2c1f" />
+      <circle cx="124" cy="100" r="7" fill="#3c2c1f" />
+      <circle cx="78.5" cy="97" r="2.3" fill="#fff" opacity="0.95" />
+      <circle cx="126.5" cy="97" r="2.3" fill="#fff" opacity="0.95" />
+      <circle cx="74" cy="103" r="1" fill="#fff" opacity="0.6" />
+      <circle cx="122" cy="103" r="1" fill="#fff" opacity="0.6" />
+
       {/* 鼻 */}
-      <ellipse cx="30" cy="34.5" rx="2.6" ry="2" fill="#4a3626" />
+      <ellipse cx="100" cy="118" rx="10" ry="7.5" fill="#3c2c1f" />
+      <ellipse cx="97" cy="115.5" rx="2.4" ry="1.6" fill="#6a5138" opacity="0.7" />
+
       {/* 前歯 */}
-      <rect x="27" y="37.5" width="2.6" height="4" rx="0.6" fill="#fff8ec" stroke="#d8c9a8" strokeWidth="0.5" />
-      <rect x="30.4" y="37.5" width="2.6" height="4" rx="0.6" fill="#fff8ec" stroke="#d8c9a8" strokeWidth="0.5" />
+      <rect x="90" y="132" width="9" height="14" rx="2.5" fill="#fffaf1" stroke="#e3cda3" strokeWidth="1" />
+      <rect x="101" y="132" width="9" height="14" rx="2.5" fill="#fffaf1" stroke="#e3cda3" strokeWidth="1" />
     </svg>
   );
 }

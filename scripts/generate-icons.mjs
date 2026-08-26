@@ -147,6 +147,78 @@ function fillRect(rgba, w, x, y, rw, rh, r, g, b, a) {
   }
 }
 
+function lerp(a, b, t) {
+  return a + (b - a) * t;
+}
+
+// 中心からライト位置(lightDX/lightDY は半径に対する比率)への距離で近似した放射グラデーション円
+function fillCircleGradient(rgba, w, cx, cy, radius, near, far, lightDX, lightDY, spread) {
+  const lightX = cx + lightDX * radius;
+  const lightY = cy + lightDY * radius;
+  const maxDist = radius * spread;
+  for (let y = Math.floor(cy - radius - 1); y <= cy + radius + 1; y++) {
+    for (let x = Math.floor(cx - radius - 1); x <= cx + radius + 1; x++) {
+      const dx = x + 0.5 - cx;
+      const dy = y + 0.5 - cy;
+      const d2 = dx * dx + dy * dy;
+      if (d2 <= radius * radius) {
+        const ldx = x + 0.5 - lightX;
+        const ldy = y + 0.5 - lightY;
+        const t = Math.max(0, Math.min(1, Math.sqrt(ldx * ldx + ldy * ldy) / maxDist));
+        setPx(rgba, w, x, y, lerp(near.r, far.r, t), lerp(near.g, far.g, t), lerp(near.b, far.b, t), 255);
+      } else if (d2 <= (radius + 1) * (radius + 1)) {
+        const d = Math.sqrt(d2);
+        const edgeA = Math.max(0, Math.min(1, radius + 1 - d)) * 255;
+        setPx(rgba, w, x, y, far.r, far.g, far.b, edgeA);
+      }
+    }
+  }
+}
+
+function fillEllipseGradient(rgba, w, cx, cy, rx, ry, near, far, lightDX, lightDY, spread) {
+  const lightX = cx + lightDX * rx;
+  const lightY = cy + lightDY * ry;
+  const maxR = Math.max(rx, ry) + 2;
+  for (let y = Math.floor(cy - maxR); y <= cy + maxR; y++) {
+    for (let x = Math.floor(cx - maxR); x <= cx + maxR; x++) {
+      const dx = x + 0.5 - cx;
+      const dy = y + 0.5 - cy;
+      const val = (dx * dx) / (rx * rx) + (dy * dy) / (ry * ry);
+      if (val <= 1) {
+        const ldx = (x + 0.5 - lightX) / rx;
+        const ldy = (y + 0.5 - lightY) / ry;
+        const t = Math.max(0, Math.min(1, Math.sqrt(ldx * ldx + ldy * ldy) / spread));
+        setPx(rgba, w, x, y, lerp(near.r, far.r, t), lerp(near.g, far.g, t), lerp(near.b, far.b, t), 255);
+      }
+    }
+  }
+}
+
+// 中心が濃く、外周に向けて透明にフェードする柔らかい丸(ほっぺの赤み用)
+function fillRadialFade(rgba, w, cx, cy, radius, r, g, b, maxAlpha) {
+  for (let y = Math.floor(cy - radius); y <= cy + radius; y++) {
+    for (let x = Math.floor(cx - radius); x <= cx + radius; x++) {
+      const dx = x + 0.5 - cx;
+      const dy = y + 0.5 - cy;
+      const d = Math.sqrt(dx * dx + dy * dy);
+      if (d <= radius) {
+        setPx(rgba, w, x, y, r, g, b, maxAlpha * (1 - d / radius));
+      }
+    }
+  }
+}
+
+function strokeQuadratic(rgba, w, x1, y1, cx, cy, x2, y2, thickness, r, g, b, a) {
+  const steps = 40;
+  for (let i = 0; i <= steps; i++) {
+    const t = i / steps;
+    const mt = 1 - t;
+    const px = mt * mt * x1 + 2 * mt * t * cx + t * t * x2;
+    const py = mt * mt * y1 + 2 * mt * t * cy + t * t * y2;
+    fillCircle(rgba, w, px, py, thickness / 2, r, g, b, a, false);
+  }
+}
+
 function makeIcon(size, { padded = false } = {}) {
   const rgba = Buffer.alloc(size * size * 4);
   // transparent base
@@ -160,62 +232,62 @@ function makeIcon(size, { padded = false } = {}) {
   const radius = padded ? size * 0.5 : size * 0.24;
   fillRoundedRect(rgba, size, size, radius, bg.r, bg.g, bg.b, 255);
 
-  const cx = size / 2;
-  const cy = size * 0.56;
-  const faceR = size * 0.28;
-  const earOuter = { r: 0x8a, g: 0x5a, b: 0x30 };
-  const earInner = { r: 0xc9, g: 0x8f, b: 0x57 };
-  const head = { r: 0xa9, g: 0x71, b: 0x3f };
-  const muzzle = { r: 0xe8, g: 0xcf, b: 0xa0 };
-  const cheek = { r: 0xe8, g: 0xa0, b: 0x6a };
-  const dark = { r: 0x4a, g: 0x36, b: 0x26 };
-  const tooth = { r: 0xff, g: 0xf8, b: 0xec };
+  // デザイン案「A. ふっくらもちもち」(200x200基準)をスケールして描画
+  const s = size / 200;
+  const headNear = { r: 0xc0, g: 0x8b, b: 0x57 };
+  const headFar = { r: 0x95, g: 0x60, b: 0x2f };
+  const earNear = { r: 0xa0, g: 0x6f, b: 0x3c };
+  const earFar = { r: 0x7c, g: 0x4e, b: 0x26 };
+  const earInner = { r: 0xd9, g: 0xa4, b: 0x68 };
+  const muzzleNear = { r: 0xf7, g: 0xe6, b: 0xc4 };
+  const muzzleFar = { r: 0xe3, g: 0xc3, b: 0x93 };
+  const blush = { r: 0xef, g: 0x9a, b: 0x5f };
+  const dark = { r: 0x3c, g: 0x2c, b: 0x1f };
+  const noseShine = { r: 0x6a, g: 0x51, b: 0x38 };
+  const tooth = { r: 0xff, g: 0xfa, b: 0xf1 };
+  const toothStroke = { r: 0xe3, g: 0xcd, b: 0xa3 };
 
   // 耳
-  const earCx = size * 0.24;
-  const earCy = cy - faceR * 0.82;
-  fillCircle(rgba, size, earCx, earCy, faceR * 0.42, earOuter.r, earOuter.g, earOuter.b, 255);
-  fillCircle(rgba, size, size - earCx, earCy, faceR * 0.42, earOuter.r, earOuter.g, earOuter.b, 255);
-  fillCircle(rgba, size, earCx, earCy, faceR * 0.2, earInner.r, earInner.g, earInner.b, 255);
-  fillCircle(rgba, size, size - earCx, earCy, faceR * 0.2, earInner.r, earInner.g, earInner.b, 255);
+  fillCircleGradient(rgba, size, 56 * s, 58 * s, 18 * s, earNear, earFar, -0.3, -0.35, 1.6);
+  fillCircleGradient(rgba, size, 144 * s, 58 * s, 18 * s, earNear, earFar, -0.3, -0.35, 1.6);
+  fillCircle(rgba, size, 56 * s, 58 * s, 9 * s, earInner.r, earInner.g, earInner.b, 255);
+  fillCircle(rgba, size, 144 * s, 58 * s, 9 * s, earInner.r, earInner.g, earInner.b, 255);
 
   // 頭
-  fillCircle(rgba, size, cx, cy, faceR, head.r, head.g, head.b, 255);
+  fillCircleGradient(rgba, size, 100 * s, 102 * s, 58 * s, headNear, headFar, -0.3, -0.35, 1.6);
 
   // マズル
-  fillEllipse(rgba, size, cx, cy + faceR * 0.28, faceR * 0.62, faceR * 0.52, 0, muzzle.r, muzzle.g, muzzle.b, 255);
+  fillEllipseGradient(rgba, size, 100 * s, 128 * s, 36 * s, 30 * s, muzzleNear, muzzleFar, -0.3, -0.35, 1.6);
 
   // ほっぺ
-  fillCircle(rgba, size, cx - faceR * 0.68, cy + faceR * 0.14, faceR * 0.2, cheek.r, cheek.g, cheek.b, 150);
-  fillCircle(rgba, size, cx + faceR * 0.68, cy + faceR * 0.14, faceR * 0.2, cheek.r, cheek.g, cheek.b, 150);
+  fillRadialFade(rgba, size, 63 * s, 118 * s, 17 * s, blush.r, blush.g, blush.b, 160);
+  fillRadialFade(rgba, size, 137 * s, 118 * s, 17 * s, blush.r, blush.g, blush.b, 160);
 
   // 八の字眉
-  const browT = Math.max(1.5, size * 0.02);
-  strokeLine(
-    rgba, size,
-    cx - faceR * 0.26, cy - faceR * 0.58,
-    cx - faceR * 0.74, cy - faceR * 0.34,
-    browT, dark.r, dark.g, dark.b, 255
-  );
-  strokeLine(
-    rgba, size,
-    cx + faceR * 0.26, cy - faceR * 0.58,
-    cx + faceR * 0.74, cy - faceR * 0.34,
-    browT, dark.r, dark.g, dark.b, 255
-  );
+  const browT = Math.max(1.5, 4.4 * s);
+  strokeQuadratic(rgba, size, 84 * s, 80 * s, 74 * s, 84 * s, 65 * s, 92 * s, browT, dark.r, dark.g, dark.b, 255);
+  strokeQuadratic(rgba, size, 116 * s, 80 * s, 126 * s, 84 * s, 135 * s, 92 * s, browT, dark.r, dark.g, dark.b, 255);
 
-  // 目
-  fillCircle(rgba, size, cx - faceR * 0.37, cy - faceR * 0.08, faceR * 0.14, dark.r, dark.g, dark.b, 255);
-  fillCircle(rgba, size, cx + faceR * 0.37, cy - faceR * 0.08, faceR * 0.14, dark.r, dark.g, dark.b, 255);
+  // 目(ハイライト付き)
+  fillCircle(rgba, size, 76 * s, 100 * s, 7 * s, dark.r, dark.g, dark.b, 255);
+  fillCircle(rgba, size, 124 * s, 100 * s, 7 * s, dark.r, dark.g, dark.b, 255);
+  fillCircle(rgba, size, 78.5 * s, 97 * s, 2.3 * s, 255, 255, 255, 242);
+  fillCircle(rgba, size, 126.5 * s, 97 * s, 2.3 * s, 255, 255, 255, 242);
+  fillCircle(rgba, size, 74 * s, 103 * s, 1 * s, 255, 255, 255, 153);
+  fillCircle(rgba, size, 122 * s, 103 * s, 1 * s, 255, 255, 255, 153);
 
-  // 鼻
-  fillEllipse(rgba, size, cx, cy + faceR * 0.14, faceR * 0.14, faceR * 0.11, 0, dark.r, dark.g, dark.b, 255);
+  // 鼻(ハイライト付き)
+  fillEllipse(rgba, size, 100 * s, 118 * s, 10 * s, 7.5 * s, 0, dark.r, dark.g, dark.b, 255);
+  fillEllipse(rgba, size, 97 * s, 115.5 * s, 2.4 * s, 1.6 * s, 0, noseShine.r, noseShine.g, noseShine.b, 179);
 
   // 前歯
-  const toothW = faceR * 0.14;
-  const toothH = faceR * 0.22;
-  fillRect(rgba, size, cx - toothW - 1, cy + faceR * 0.34, toothW, toothH, tooth.r, tooth.g, tooth.b, 255);
-  fillRect(rgba, size, cx + 1, cy + faceR * 0.34, toothW, toothH, tooth.r, tooth.g, tooth.b, 255);
+  fillRect(rgba, size, 90 * s, 132 * s, 9 * s, 14 * s, tooth.r, tooth.g, tooth.b, 255);
+  fillRect(rgba, size, 101 * s, 132 * s, 9 * s, 14 * s, tooth.r, tooth.g, tooth.b, 255);
+  // 歯の輪郭(薄いストローク)
+  for (const tx of [90 * s, 101 * s]) {
+    strokeLine(rgba, size, tx, 132 * s, tx + 9 * s, 132 * s, 1, toothStroke.r, toothStroke.g, toothStroke.b, 200);
+    strokeLine(rgba, size, tx, 146 * s, tx + 9 * s, 146 * s, 1, toothStroke.r, toothStroke.g, toothStroke.b, 200);
+  }
 
   return rgba;
 }
