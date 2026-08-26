@@ -117,4 +117,14 @@ export const builtinRecipes: Recipe[] = [
   { id: 'b-36', name: '手羽先の甘辛煮', cookMinutes: 25, isCustom: false, ingredients: [
     { name: '鶏手羽先', amount: '8本' }, { name: 'しょうゆ', amount: '大さじ3' }, { name: '砂糖', amount: '大さじ2' },
   ] },
+  { id: 'b-37', name: 'お好み焼き', cookMinutes: 25, isCustom: false, ingredients: [
+    { name: 'キャベツ', amount: '1人分 150g(約1/8玉) / 3人分 450g(約1/2玉)', amount1: '150g(約1/8玉)', amount3: '450g(約1/2玉)' },
+    { name: '豚バラ薄切り肉', amount: '1人分 40g / 3人分 120g', amount1: '40g', amount3: '120g' },
+    { name: '卵', amount: '1人分 1個 / 3人分 3個', amount1: '1個', amount3: '3個' },
+    { name: 'お好み焼き粉', amount: '1人分 50g(大さじ4) / 3人分 200g(1袋)', amount1: '50g(大さじ4)', amount3: '200g(1袋)' },
+    { name: '水', amount: '1人分 大さじ2 / 3人分 150ml', amount1: '大さじ2', amount3: '150ml' },
+    { name: '長芋すりおろし(お好みで)', amount: '1人分 30g / 3人分 100g', amount1: '30g', amount3: '100g' },
+    { name: 'お好み焼きソース・マヨネーズ', amount: '適量' },
+    { name: '青のり・かつおぶし', amount: '適量' },
+  ] },
 ];

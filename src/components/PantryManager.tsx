@@ -39,7 +39,7 @@ export function PantryManager() {
               <input type="checkbox" checked={item.isOut} onChange={() => togglePantryOut(item.id)} />
               <span>{item.name}</span>
             </label>
-            {item.isOut && <span className="badge badge-warn">切れてます</span>}
+            {item.isOut && <span className="badge badge-warn">ヤマです</span>}
             <button className="icon-btn" onClick={() => deletePantryItem(item.id)} aria-label="削除">✕</button>
           </div>
         ))}

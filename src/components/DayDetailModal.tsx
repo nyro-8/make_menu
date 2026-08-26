@@ -30,7 +30,14 @@ export function DayDetailModal({ date, recipe, activeRecipes, onClose, onChangeM
               {recipe.ingredients.map((ing, i) => (
                 <li key={i}>
                   <span>{ing.name}</span>
-                  <span className="muted">{ing.amount}</span>
+                  {ing.amount1 && ing.amount3 ? (
+                    <span className="ingredient-servings">
+                      <span><b>1人分</b> {ing.amount1}</span>
+                      <span><b>3人分</b> {ing.amount3}</span>
+                    </span>
+                  ) : (
+                    <span className="muted">{ing.amount}</span>
+                  )}
                 </li>
               ))}
             </ul>

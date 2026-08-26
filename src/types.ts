@@ -1,6 +1,10 @@
 export interface Ingredient {
   name: string;
   amount: string;
+  /** 大人1人分の分量(任意・指定した場合はamount3とあわせて2人数分表示される) */
+  amount1?: string;
+  /** 3人分の分量(任意) */
+  amount3?: string;
 }
 
 export interface Recipe {
