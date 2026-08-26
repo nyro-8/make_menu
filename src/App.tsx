@@ -5,14 +5,15 @@ import { CalendarView } from './components/CalendarView';
 import { MenuManager } from './components/MenuManager';
 import { PantryManager } from './components/PantryManager';
 import { ShoppingList } from './components/ShoppingList';
+import { CalendarIcon, BookIcon, JarIcon, CartIcon } from './components/icons';
 
 type Tab = 'calendar' | 'menus' | 'pantry' | 'shopping';
 
-const TABS: { id: Tab; label: string; icon: string }[] = [
-  { id: 'calendar', label: 'カレンダー', icon: '📅' },
-  { id: 'menus', label: 'メニュー', icon: '🍳' },
-  { id: 'pantry', label: '調味料', icon: '🧂' },
-  { id: 'shopping', label: '買い物', icon: '🛒' },
+const TABS: { id: Tab; label: string; Icon: (props: { className?: string }) => React.JSX.Element }[] = [
+  { id: 'calendar', label: 'カレンダー', Icon: CalendarIcon },
+  { id: 'menus', label: 'メニュー', Icon: BookIcon },
+  { id: 'pantry', label: '調味料', Icon: JarIcon },
+  { id: 'shopping', label: '買い物', Icon: CartIcon },
 ];
 
 function AppShell() {
@@ -47,7 +48,7 @@ function AppShell() {
             className={`tab-btn ${tab === t.id ? 'active' : ''}`}
             onClick={() => setTab(t.id)}
           >
-            <span className="tab-icon">{t.icon}</span>
+            <t.Icon className="tab-icon" />
             <span className="tab-label">{t.label}</span>
           </button>
         ))}

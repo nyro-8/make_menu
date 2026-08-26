@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useAppData } from '../store/AppDataContext';
 import type { Ingredient, Recipe } from '../types';
 
@@ -23,6 +23,19 @@ export function MenuManager() {
   const [cookMinutes, setCookMinutes] = useState('');
   const [memo, setMemo] = useState('');
   const [ingredients, setIngredients] = useState<Ingredient[]>([emptyIngredient()]);
+
+  const nameSuggestions = useMemo(() => {
+    const query = name.trim();
+    if (query.length < 2) return [];
+    return builtinRecipes
+      .filter((r) => r.name.includes(query) || query.includes(r.name))
+      .slice(0, 3);
+  }, [name, builtinRecipes]);
+
+  function applySuggestion(recipe: Recipe) {
+    setIngredients(recipe.ingredients.length > 0 ? recipe.ingredients.map((i) => ({ ...i })) : [emptyIngredient()]);
+    if (!cookMinutes && recipe.cookMinutes) setCookMinutes(String(recipe.cookMinutes));
+  }
 
   function resetForm() {
     setName('');
@@ -103,6 +116,20 @@ export function MenuManager() {
             <span>メニュー名</span>
             <input value={name} onChange={(e) => setName(e.target.value)} placeholder="例: 肉じゃが" required />
           </label>
+
+          {nameSuggestions.length > 0 && (
+            <div className="suggestion-box">
+              <p className="muted small">似ているレシピ集の材料を使う:</p>
+              <div className="suggestion-chips">
+                {nameSuggestions.map((r) => (
+                  <button type="button" key={r.id} className="suggestion-chip" onClick={() => applySuggestion(r)}>
+                    {r.name}({r.ingredients.length}品目)
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           <label className="field">
             <span>調理時間の目安(分・任意)</span>
             <input
