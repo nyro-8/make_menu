@@ -52,3 +52,17 @@ export function formatDisplayDate(dateStr: string): string {
   const date = new Date(y, mo - 1, da);
   return `${mo}月${da}日(${WEEKDAY_JP[date.getDay()]})`;
 }
+
+export function formatShortDate(dateStr: string): string {
+  const [, mo, da] = dateStr.split('-').map(Number);
+  return `${mo}/${da}`;
+}
+
+/** 指定日を含む週の月曜日を返す */
+export function getMondayOfWeek(dateStr: string): string {
+  const [y, mo, da] = dateStr.split('-').map(Number);
+  const date = new Date(y, mo - 1, da);
+  const jsDay = date.getDay(); // 0=Sun
+  const diffToMonday = (jsDay + 6) % 7;
+  return addDays(dateStr, -diffToMonday);
+}
